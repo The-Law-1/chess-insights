@@ -29,6 +29,16 @@ const metadataRows = computed(() => {
   }
 
   const meta = parsedGame.value.metadata
+  const deviation = meta.deviatedFromBookMove
+  const deviationLabel = deviation
+    ? `Move ${deviation.moveNumber} (${deviation.color === 'w' ? 'White' : 'Black'})`
+    : null
+  const deviationDetail = deviation
+    ? deviation.expected
+      ? `Played ${deviation.played}, expected ${deviation.expected}`
+      : `Played ${deviation.played}`
+    : null
+
   return [
     { label: 'White', value: meta.white },
     { label: 'Black', value: meta.black },
@@ -39,8 +49,22 @@ const metadataRows = computed(() => {
     { label: 'UTC Date', value: meta.utcDate },
     { label: 'UTC Time', value: meta.utcTime },
 
-    {label: 'Average Time Spent per Move (White)', value: meta.averageMoveTimeSecondsWhite != null ? `${meta.averageMoveTimeSecondsWhite.toFixed(2)}s` : null},
-    {label: 'Average Time Spent per Move (Black)', value: meta.averageMoveTimeSecondsBlack != null ? `${meta.averageMoveTimeSecondsBlack.toFixed(2)}s` : null},
+    {
+      label: 'Average Time Spent per Move (White)',
+      value:
+        meta.averageMoveTimeSecondsWhite != null
+          ? `${meta.averageMoveTimeSecondsWhite.toFixed(2)}s`
+          : null,
+    },
+    {
+      label: 'Average Time Spent per Move (Black)',
+      value:
+        meta.averageMoveTimeSecondsBlack != null
+          ? `${meta.averageMoveTimeSecondsBlack.toFixed(2)}s`
+          : null,
+    },
+    { label: 'Book deviation', value: deviationLabel },
+    { label: 'Deviation detail', value: deviationDetail },
   ]
 })
 

@@ -1,5 +1,6 @@
 import { Chess } from 'chess.js'
 import type { EndgameType } from './types'
+import ecoData from '../assets/eco_data.json'
 
 type PlayerColor = 'w' | 'b'
 
@@ -19,6 +20,12 @@ interface VerboseMove {
   flags: string
   captured?: string
   promotion?: string
+}
+
+interface EcoEntry {
+  code: string
+  name: string
+  move_sequences: string
 }
 
 export interface MoveFrame {
@@ -63,6 +70,13 @@ export interface GameMetadata {
   blackCastledAtMove?: number | null
   endgameType?: EndgameType | null
   firstNonBookMoveIndex?: number | null
+  deviatedFromBookMove?: {
+    plyIndex: number
+    moveNumber: number
+    color: PlayerColor
+    played: string
+    expected: string | null
+  } | null
 }
 
 export interface ParsedGame {
@@ -211,16 +225,88 @@ const buildEndgameType = (chess: Chess): EndgameType => {
   return base as EndgameType
 }
 
+const normalizeSan = (san: string) =>
+  san
+    .replace(/0-0-0/g, 'O-O-O')
+    .replace(/0-0/g, 'O-O')
+    .replace(/[+#]/g, '')
+    .replace(/[!?]+/g, '')
+    .trim()
+
+const parseEcoMoves = (sequence: string) =>
+  sequence
+    .split(/\s+/)
+    .filter((token) => token && !/^\d+\.?$/.test(token))
+    .map((token) => normalizeSan(token))
+
+const findEcoEntry = (ecoCode: string | null) => {
+  if (!ecoCode) {
+    return null
+  }
+
+  return (ecoData as EcoEntry[]).find((entry) => entry.code === ecoCode) ?? null
+}
+
+const detectBookDeviation = (frames: MoveFrame[], ecoEntry: EcoEntry | null) => {
+  if (!ecoEntry) {
+    return { firstNonBookMoveIndex: null, deviatedFromBookMove: null }
+  }
+
+  const expectedMoves = parseEcoMoves(ecoEntry.move_sequences)
+  const maxCompare = Math.min(expectedMoves.length, frames.length)
+
+  for (let plyIndex = 0; plyIndex < maxCompare; plyIndex += 1) {
+    const expected = expectedMoves[plyIndex]
+    const played = normalizeSan(frames[plyIndex].san)
+
+    if (expected !== played) {
+      const frame = frames[plyIndex]
+      return {
+        firstNonBookMoveIndex: plyIndex,
+        deviatedFromBookMove: {
+          plyIndex,
+          moveNumber: frame.moveNumber,
+          color: frame.color,
+          played: frame.san,
+          expected,
+        },
+      }
+    }
+  }
+
+  if (frames.length > expectedMoves.length) {
+    const frame = frames[expectedMoves.length]
+    return {
+      firstNonBookMoveIndex: expectedMoves.length,
+      deviatedFromBookMove: frame
+        ? {
+            plyIndex: expectedMoves.length,
+            moveNumber: frame.moveNumber,
+            color: frame.color,
+            played: frame.san,
+            expected: null,
+          }
+        : null,
+    }
+  }
+
+  return { firstNonBookMoveIndex: null, deviatedFromBookMove: null }
+}
+
 const buildMetadata = (chess: Chess, frames: MoveFrame[]): GameMetadata => {
   const headers = chess.getHeaders() as ChessHeaderMap
   const ecoUrl = headers.ECOUrl ?? headers.ECOURL ?? headers.EcoUrl ?? null
-  const opening = headers.Opening ?? parseEcoName(ecoUrl)
+  const eco = readHeader(headers, 'ECO')
+  const ecoEntry = findEcoEntry(eco)
+  const opening = headers.Opening ?? ecoEntry?.name ?? parseEcoName(ecoUrl)
   const whiteTimes = frames
     .filter((frame) => frame.color === 'w' && frame.timeSpentSeconds !== null)
     .map((frame) => frame.timeSpentSeconds as number)
   const blackTimes = frames
     .filter((frame) => frame.color === 'b' && frame.timeSpentSeconds !== null)
     .map((frame) => frame.timeSpentSeconds as number)
+
+  const deviation = detectBookDeviation(frames, ecoEntry)
 
   return {
     event: readHeader(headers, 'Event'),
@@ -236,7 +322,7 @@ const buildMetadata = (chess: Chess, frames: MoveFrame[]): GameMetadata => {
     whiteAccuracy: parseOptionalNumber(headers.WhiteAccuracy),
     blackAccuracy: parseOptionalNumber(headers.BlackAccuracy),
     timeControl: readHeader(headers, 'TimeControl'),
-    eco: readHeader(headers, 'ECO'),
+    eco,
     ecoUrl,
     opening,
     termination: readHeader(headers, 'Termination'),
@@ -248,7 +334,8 @@ const buildMetadata = (chess: Chess, frames: MoveFrame[]): GameMetadata => {
     whiteCastledAtMove: findCastlingMoveNumber(frames, 'w'),
     blackCastledAtMove: findCastlingMoveNumber(frames, 'b'),
     endgameType: buildEndgameType(chess),
-    firstNonBookMoveIndex: null,
+    firstNonBookMoveIndex: deviation.firstNonBookMoveIndex,
+    deviatedFromBookMove: deviation.deviatedFromBookMove,
   }
 }
 
