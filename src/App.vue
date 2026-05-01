@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import EngineDebug from './components/EngineDebug.vue'
+import { RouterView } from 'vue-router';
+
 </script>
 
 <template>
-  <EngineDebug />
+  <RouterView/>
 </template>
