@@ -38,6 +38,9 @@ const metadataRows = computed(() => {
     { label: 'Time Control', value: meta.timeControl },
     { label: 'UTC Date', value: meta.utcDate },
     { label: 'UTC Time', value: meta.utcTime },
+
+    {label: 'Average Time Spent per Move (White)', value: meta.averageMoveTimeSecondsWhite != null ? `${meta.averageMoveTimeSecondsWhite.toFixed(2)}s` : null},
+    {label: 'Average Time Spent per Move (Black)', value: meta.averageMoveTimeSecondsBlack != null ? `${meta.averageMoveTimeSecondsBlack.toFixed(2)}s` : null},
   ]
 })
 

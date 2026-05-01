@@ -56,9 +56,9 @@ export interface GameMetadata {
   opening: string | null
   termination: string | null
   headers: ChessHeaderMap
-  gameUrl?: string | null;
-  averageMoveTimeSecondsWhite?: number | null;
-averageMoveTimeSecondsBlack?: number | null;
+  gameUrl?: string | null
+  averageMoveTimeSecondsWhite?: number | null
+  averageMoveTimeSecondsBlack?: number | null
   whiteCastledAtMove?: number | null
   blackCastledAtMove?: number | null
   endgameType?: EndgameType | null
@@ -131,10 +131,96 @@ const parseEcoName = (ecoUrl?: string | null) => {
 
 const readHeader = (headers: ChessHeaderMap, key: string) => headers[key] ?? null
 
-const buildMetadata = (chess: Chess): GameMetadata => {
+const average = (values: number[]) => {
+  if (!values.length) {
+    return null
+  }
+
+  const total = values.reduce((sum, value) => sum + value, 0)
+  return total / values.length
+}
+
+const findCastlingMoveNumber = (frames: MoveFrame[], color: PlayerColor) => {
+  const castlingMove = frames.find((frame) => frame.color === color && frame.isCastling)
+  return castlingMove ? castlingMove.moveNumber : null
+}
+
+const buildEndgameType = (chess: Chess): EndgameType => {
+  const board = chess.board()
+  const counts = {
+    w: { q: 0, b: 0, n: 0, r: 0, p: 0, bl: 0, bd: 0 },
+    b: { q: 0, b: 0, n: 0, r: 0, p: 0, bl: 0, bd: 0 },
+  }
+
+  board.forEach((rank, rankIndex) => {
+    rank.forEach((piece, fileIndex) => {
+      if (!piece) {
+        return
+      }
+
+      if (piece.type === 'k') {
+        return
+      }
+
+      const isDarkSquare = (fileIndex + 1 + (8 - rankIndex)) % 2 === 0
+      const target = counts[piece.color]
+
+      if (piece.type === 'q') {
+        target.q += 1
+      } else if (piece.type === 'b') {
+        target.b += 1
+        if (isDarkSquare) {
+          target.bd += 1
+        } else {
+          target.bl += 1
+        }
+      } else if (piece.type === 'n') {
+        target.n += 1
+      } else if (piece.type === 'r') {
+        target.r += 1
+      } else if (piece.type === 'p') {
+        target.p += 1
+      }
+    })
+  })
+
+  const buildMaterial = (count: typeof counts.w) =>
+    `K${'Q'.repeat(count.q)}${'B'.repeat(count.b)}${'N'.repeat(count.n)}${
+      'R'.repeat(count.r)
+    }${'P'.repeat(count.p)}`
+
+  const base = `${buildMaterial(counts.w)}${buildMaterial(counts.b)}`
+  const bishopTotal = counts.w.b + counts.b.b
+  const bishopSignature =
+    bishopTotal >= 2 ? `${counts.w.bl}${counts.w.bd}${counts.b.bl}${counts.b.bd}` : null
+  const castlingRights = chess.fen().split(' ')[2]
+  const castlingSignature = castlingRights !== '-' ? castlingRights : null
+
+  if (bishopSignature && castlingSignature) {
+    return `${base}_${bishopSignature}_${castlingSignature}` as EndgameType
+  }
+
+  if (bishopSignature) {
+    return `${base}_${bishopSignature}` as EndgameType
+  }
+
+  if (castlingSignature) {
+    return `${base}_${castlingSignature}` as EndgameType
+  }
+
+  return base as EndgameType
+}
+
+const buildMetadata = (chess: Chess, frames: MoveFrame[]): GameMetadata => {
   const headers = chess.getHeaders() as ChessHeaderMap
   const ecoUrl = headers.ECOUrl ?? headers.ECOURL ?? headers.EcoUrl ?? null
   const opening = headers.Opening ?? parseEcoName(ecoUrl)
+  const whiteTimes = frames
+    .filter((frame) => frame.color === 'w' && frame.timeSpentSeconds !== null)
+    .map((frame) => frame.timeSpentSeconds as number)
+  const blackTimes = frames
+    .filter((frame) => frame.color === 'b' && frame.timeSpentSeconds !== null)
+    .map((frame) => frame.timeSpentSeconds as number)
 
   return {
     event: readHeader(headers, 'Event'),
@@ -157,11 +243,11 @@ const buildMetadata = (chess: Chess): GameMetadata => {
     headers,
     // https://www.chess.com/analysis/game/live/168083133804/analysis?move=15
     gameUrl: readHeader(headers, 'Link') ?? null, // can be used to visualise a key moment on chess.com using this syntax
-    averageMoveTimeSecondsWhite: null, // This will be computed later
-    averageMoveTimeSecondsBlack: null, // This will be computed later
-    whiteCastledAtMove: null,
-    blackCastledAtMove: null,
-    endgameType: null,
+    averageMoveTimeSecondsWhite: average(whiteTimes),
+    averageMoveTimeSecondsBlack: average(blackTimes),
+    whiteCastledAtMove: findCastlingMoveNumber(frames, 'w'),
+    blackCastledAtMove: findCastlingMoveNumber(frames, 'b'),
+    endgameType: buildEndgameType(chess),
     firstNonBookMoveIndex: null,
   }
 }
@@ -252,17 +338,18 @@ const buildFrames = (chess: Chess) => {
 export const parseGame = (pgn: string): ParsedGame => {
   const chess = new Chess()
   try {
+    chess.loadPgn(pgn, { strict: false })
+  } catch (error) {
+    console.log('Error parsing PGN:', error)
 
-      chess.loadPgn(pgn, { strict: false })
-    } catch (error) {
-        console.log("Error parsing PGN:", error)
-        
-        throw new Error('PGN could not be parsed. Check the input format.')
-    }
+    throw new Error('PGN could not be parsed. Check the input format.')
+  }
+
+  const frames = buildFrames(chess)
 
   return {
     chess,
-    frames: buildFrames(chess),
-    metadata: buildMetadata(chess),
+    frames,
+    metadata: buildMetadata(chess, frames),
   }
 }
