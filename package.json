@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroicons/vue": "^2.2.0",
     "chess.js": "^1.4.0",
     "pinia": "^3.0.4",
     "stockfish.wasm": "^0.10.0",

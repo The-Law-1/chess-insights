@@ -14,7 +14,7 @@ import type {
   TimeProfile,
 } from './types'
 
-const ANALYSIS_DEPTH = 12
+const ANALYSIS_DEPTH = 6
 const BLUNDER_THRESHOLD = -150
 
 const DRAW_RESULTS = new Set([
