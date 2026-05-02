@@ -1,14 +1,25 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { useAnalysisStore } from '../stores/analysisStore'
 import { useGameStore } from '../stores/gameStore'
 import type { TimeClass } from '../games/chessCom'
 
 const store = useGameStore()
 const { games, status, error, progress } = storeToRefs(store)
+const analysisStore = useAnalysisStore()
+const {
+  analysedGames,
+  status: analysisStatus,
+  error: analysisError,
+  progress: analysisProgress,
+} = storeToRefs(analysisStore)
 
 const currentYear = new Date().getFullYear()
 const years = Array.from({ length: 12 }, (_, index) => currentYear - index)
+
+const maxGames = ref(1000)
+;
 
 const username = ref('')
 const startYear = ref(currentYear)
@@ -16,6 +27,7 @@ const endYear = ref(currentYear)
 const timeClass = ref<TimeClass>('all')
 
 const isLoading = computed(() => status.value === 'loading')
+const isAnalyzing = computed(() => analysisStatus.value === 'loading')
 const progressValue = computed(() => {
   if (progress.value.monthsTotal === 0) {
     return 0
@@ -32,6 +44,24 @@ const progressLabel = computed(() => {
   return `${progress.value.monthsDone}/${progress.value.monthsTotal} months`
 })
 
+const analysisProgressValue = computed(() => {
+  if (analysisProgress.value.gamesTotal === 0) {
+    return 0
+  }
+
+  return Math.round(
+    (analysisProgress.value.gamesDone / analysisProgress.value.gamesTotal) * 100,
+  )
+})
+
+const analysisProgressLabel = computed(() => {
+  if (analysisProgress.value.gamesTotal === 0) {
+    return 'No analysis queued yet'
+  }
+
+  return `${analysisProgress.value.gamesDone}/${analysisProgress.value.gamesTotal} games`
+})
+
 const handleSubmit = async () => {
   const trimmed = username.value.trim()
   if (!trimmed) {
@@ -46,7 +76,21 @@ const handleSubmit = async () => {
     startDate,
     endDate,
     timeClass: timeClass.value,
+    maxGames: maxGames.value,
   })
+}
+
+const handleAnalyse = async () => {
+  if (!games.value.length || isAnalyzing.value) {
+    return
+  }
+
+  const trimmed = username.value.trim()
+  if (!trimmed) {
+    return
+  }
+
+  await analysisStore.analyseGames(games.value, trimmed)
 }
 </script>
 
@@ -61,6 +105,10 @@ const handleSubmit = async () => {
       <label class="field">
         <span>Chess.com username</span>
         <input v-model="username" type="text" placeholder="e.g. hikaru" />
+      </label>
+      <label class="field">
+        <span>Max games</span>
+        <input v-model.number="maxGames" type="number" min="1" max="1000" />
       </label>
 
       <div class="row">
@@ -90,6 +138,28 @@ const handleSubmit = async () => {
       <p class="meta">Fetched {{ progress.gamesFetched }} games.</p>
       <p v-if="status === 'ready'" class="meta">Store has {{ games.length }} total games.</p>
       <p v-if="status === 'error'" class="error">{{ error }}</p>
+
+      <div class="status-row status-row--analysis">
+        <progress :value="analysisProgressValue" max="100"></progress>
+        <span>{{ analysisProgressLabel }}</span>
+      </div>
+      <p v-if="analysisProgress.currentLabel" class="meta">
+        Analysing: {{ analysisProgress.currentLabel }}
+      </p>
+      <p v-if="analysisStatus === 'ready'" class="meta">
+        Analysed {{ analysedGames.length }} games.
+      </p>
+      <p v-if="analysisStatus === 'error'" class="error">{{ analysisError }}</p>
+    </section>
+
+    <section class="analysis">
+      <h2>Analyse games</h2>
+      <p class="meta">
+        Run Stockfish analysis on the fetched games and build the analysed dataset.
+      </p>
+      <button type="button" :disabled="!games.length || isAnalyzing" @click="handleAnalyse">
+        {{ isAnalyzing ? 'Analysing…' : 'Analyse games' }}
+      </button>
     </section>
   </section>
 </template>
@@ -177,6 +247,10 @@ button:not(:disabled):hover {
   gap: 12px;
 }
 
+.status-row--analysis {
+  margin-top: 12px;
+}
+
 progress {
   width: 100%;
   height: 14px;
@@ -198,5 +272,19 @@ progress::-webkit-progress-value {
 
 .error {
   color: #b42318;
+}
+
+.analysis {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.analysis button {
+  max-width: 220px;
 }
 </style>

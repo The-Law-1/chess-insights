@@ -5,6 +5,7 @@ export interface FetchParams {
   startDate: Date
   endDate: Date
   timeClass: TimeClass
+  maxGames: number
 }
 
 export interface RawGame {
@@ -166,11 +167,18 @@ export const fetchGamesSequential = async (
     games = games.concat(filtered)
     monthsDone += 1
 
+    if (games.length >= params.maxGames) {
+      games = games.slice(0, params.maxGames)
+    }
+
     onProgress?.({
       monthsDone,
       monthsTotal: totalMonths,
       gamesFetched: games.length,
     })
+    if (games.length >= params.maxGames) {
+      break
+    }
   }
 
   return games
