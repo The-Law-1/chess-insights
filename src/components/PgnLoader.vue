@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { extractKeyPositions, type KeyReason } from '../pgn/extractKeyPositions'
 import { parseGame, type ParsedGame } from '../pgn/parseGame'
 
 const pgnText = ref('')
@@ -85,6 +86,38 @@ const summaryRows = computed(() => {
     { label: 'Checks', value: checks },
   ]
 })
+
+const reasonLabels: Record<KeyReason, string> = {
+  'major-piece-capture': 'Major piece capture',
+  'minor-piece-capture': 'Minor piece capture',
+  'pawn-capture': 'Pawn capture',
+  'check-after-capture': 'Check after capture',
+  promotion: 'Promotion',
+  castling: 'Castling',
+  'large-clock-drop': 'Large clock drop',
+  'pre-checkmate': 'Pre-checkmate',
+  'consecutive-captures': 'Consecutive captures',
+}
+
+const keyPositionRows = computed(() => {
+  if (!parsedGame.value) {
+    return []
+  }
+
+  const frames = parsedGame.value.frames
+  const startPlyIndex = parsedGame.value.metadata.firstNonBookMoveIndex
+  return extractKeyPositions(frames, { startPlyIndex }).map((position) => {
+    const frame = frames[position.plyIndex]
+    const colorLabel = frame.color === 'w' ? 'White' : 'Black'
+    return {
+      plyIndex: position.plyIndex,
+      moveNumber: frame.moveNumber,
+      color: colorLabel,
+      san: frame.san,
+      reasons: position.reasons.map((reason) => reasonLabels[reason]),
+    }
+  })
+})
 </script>
 
 <template>
@@ -127,6 +160,19 @@ const summaryRows = computed(() => {
             <dd>{{ row.value }}</dd>
           </template>
         </dl>
+      </div>
+
+      <div class="pgn-loader__panel pgn-loader__panel--full">
+        <h2>Key positions (Step 3)</h2>
+        <p class="pgn-loader__hint">These positions will be sent to Stockfish for evaluation.</p>
+        <p v-if="!keyPositionRows.length" class="pgn-loader__empty">No key positions found.</p>
+        <ol v-else class="pgn-loader__key-list">
+          <li v-for="row in keyPositionRows" :key="row.plyIndex">
+            <strong>Move {{ row.moveNumber }} {{ row.color }}:</strong>
+            {{ row.san }}
+            <span class="pgn-loader__reasons">({{ row.reasons.join(', ') }})</span>
+          </li>
+        </ol>
       </div>
     </div>
   </section>
@@ -211,6 +257,10 @@ const summaryRows = computed(() => {
   border: 1px solid #e2e8f0;
 }
 
+.pgn-loader__panel--full {
+  grid-column: 1 / -1;
+}
+
 .pgn-loader__panel h2 {
   margin: 0 0 0.75rem;
   font-size: 1.05rem;
@@ -231,6 +281,29 @@ const summaryRows = computed(() => {
 .pgn-loader__panel dd {
   margin: 0;
   color: #475569;
+}
+
+.pgn-loader__hint {
+  margin: 0 0 0.75rem;
+  color: #64748b;
+}
+
+.pgn-loader__empty {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.pgn-loader__key-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.5rem;
+  color: #334155;
+}
+
+.pgn-loader__reasons {
+  color: #64748b;
+  font-size: 0.85rem;
 }
 
 @media (max-width: 640px) {
