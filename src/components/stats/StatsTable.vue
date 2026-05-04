@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<{
     title: string;
     rows: StatsRow[];
     fieldLabel?: string;
+    description?: string;
 }>(), {
     fieldLabel: 'Field'
 });
@@ -41,6 +42,10 @@ function toggleSort(key: 'count' | 'winrate') {
 <template>
     <div class="stats-table">
         <h2>{{ title }}</h2>
+
+        <div>
+            <p v-if="description" class="stats-table__description">{{ description }}</p>
+        </div>
 
         <table class="stats-table__table">
             <thead>
@@ -178,6 +183,12 @@ function toggleSort(key: 'count' | 'winrate') {
 .stats-table__win--bad {
     color: #dc2626;
     font-weight: 600;
+}
+
+.stats-table__description {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {

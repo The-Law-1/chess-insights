@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.vue --fix",
+    "prettier": "prettier --write .",
+    "typeCheck": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",

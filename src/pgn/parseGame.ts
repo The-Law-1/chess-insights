@@ -159,7 +159,7 @@ const findCastlingMoveNumber = (frames: MoveFrame[], color: PlayerColor) => {
   return castlingMove ? castlingMove.moveNumber : null
 }
 
-const buildEndgameType = (chess: Chess): EndgameType => {
+const buildEndgameType = (chess: Chess): EndgameType | null => {
   const board = chess.board()
   const counts = {
     w: { q: 0, b: 0, n: 0, r: 0, p: 0, bl: 0, bd: 0 },
@@ -197,6 +197,12 @@ const buildEndgameType = (chess: Chess): EndgameType => {
       }
     })
   })
+
+  const nonPawnTotal = counts.w.q + counts.w.b + counts.w.n + counts.w.r +
+    counts.b.q + counts.b.b + counts.b.n + counts.b.r
+  if (nonPawnTotal > 4) {
+    return null
+  }
 
   const buildMaterial = (count: typeof counts.w) =>
     `K${'Q'.repeat(count.q)}${'B'.repeat(count.b)}${'N'.repeat(count.n)}${

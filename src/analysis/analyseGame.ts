@@ -2,6 +2,7 @@ import type { RawGame } from '../games/chessCom'
 import StockfishWorker from '../engine/StockfishWorker'
 import { extractKeyPositions } from '../pgn/extractKeyPositions'
 import { parseGame } from '../pgn/parseGame'
+import type { EndgameType } from '../pgn/types'
 import type {
   AnalysedGame,
   Blunder,
@@ -16,6 +17,37 @@ import type {
 
 const ANALYSIS_DEPTH = 6
 const BLUNDER_THRESHOLD = -150
+
+const ENDGAME_TYPE_RE = /^K([QBNRP]*)K([QBNRP]*)(?:_(\d{4}))?(?:_([KQkq]+))?$/
+
+const swapCase = (s: string) =>
+  s.replace(/[a-zA-Z]/g, (c) => (c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()))
+
+const normalizeEndgameType = (type: EndgameType, playerColor: PlayerSide): EndgameType => {
+  if (playerColor === 'white') {
+    return type
+  }
+
+  const match = type.match(ENDGAME_TYPE_RE)
+  if (!match) {
+    return type
+  }
+
+  const [, wMat, bMat, bishopSig, castlingSig] = match
+
+  const swappedBishopSig = bishopSig ? bishopSig.slice(2) + bishopSig.slice(0, 2) : undefined
+  const swappedCastlingSig = castlingSig ? swapCase(castlingSig) : undefined
+
+  let result = `K${bMat}K${wMat}`
+  if (swappedBishopSig) {
+    result += `_${swappedBishopSig}`
+  }
+  if (swappedCastlingSig) {
+    result += `_${swappedCastlingSig}`
+  }
+
+  return result as EndgameType
+}
 
 const DRAW_RESULTS = new Set([
   'draw',
@@ -370,7 +402,9 @@ export const analyseGame = async (
       playerSide === 'w' ? parsed.metadata.whiteCastledAtMove ?? null : parsed.metadata.blackCastledAtMove ?? null,
     opponentCastledAtMove:
       opponentSide === 'w' ? parsed.metadata.whiteCastledAtMove ?? null : parsed.metadata.blackCastledAtMove ?? null,
-    endgameType: parsed.metadata.endgameType ?? null,
+    endgameType: parsed.metadata.endgameType
+      ? normalizeEndgameType(parsed.metadata.endgameType, playerColor)
+      : null,
     totalMoves,
   }
 }
