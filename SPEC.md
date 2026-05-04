@@ -243,7 +243,6 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 - `winRateByOpening(games)` — group by `openingName`, return `{ name, wins, losses, draws, winRate }[]` sorted by game count
 - `castlingTimingAnalysis(games)` — distribution of castling ply, correlation with result
 - `gameLengthVsResult(games)` — scatter data: total moves vs win/loss/draw
-- `timeUnderPressureVsResult(games)` — does having more `movesBelowThirtySeconds` correlate with losing?
 - `timeSpentVsMoveQuality(games)` — for each move that was a blunder, what was `timeSpentSeconds`? Build a histogram
 - `pieceActivityCorrelation(games)` — average unique squares per piece type in wins vs losses
 - `pawnStructureEvents(games)` — count isolated pawns, passed pawns reaching rank 6/7 per game; correlate with result
@@ -266,14 +265,87 @@ These should be computed from the stored `keyPositions` already in `AnalysedGame
 - `blundersWhilePiecesUnmoved(games)` — cross-reference blunder ply with piece activity map; flag games where a blunder happened while ≥3 of the player's pieces had `moveCount === 0` (suggests opening development issues)
 - `endgamePerformance(games)` — classify endgame type from final material FEN, compute win/draw/loss rate per type
 
-**Tactical motif detection (hardest — treat as optional):**  
-Detecting pins, forks, and skewers programmatically requires board geometry logic. Two viable approaches:
-  1. **Geometry approach:** After each blunder position, check if `bestMove` results in a position where the moving piece attacks two or more opponent pieces simultaneously (fork), or attacks a piece that is shielding a higher-value piece (pin/skewer). Requires implementing piece attack maps using chess.js board state.
-  2. **Proxy approach:** Skip detection entirely and instead surface the `bestMove` UCI move and the `fenBefore` for the user to review on a board — let the human identify the motif visually.
+---
 
-The proxy approach ships faster and is arguably more instructive.
+## Step 7c — Advanced insights & narrative stats
 
-**Checkpoint:** `worstPieceToMove` returns a ranked list. `blundersWhilePiecesUnmoved` flags at least some games in a real dataset.
+**Goal:** Compute higher-level insights that tell a story about the player's style, weaknesses, and memorable moments. All of these use already-stored `EvaluatedPosition[]` and `AnalysedGame[]` data — no new engine calls.
+
+### Positional insight
+
+- `openVsClosedACPL(games)` — classify each game's positions as open (≥4 centre pawns missing, files with no pawns) or closed (≤2 centre pawns moved, pawn chains interlocked) using FEN analysis. Compare average centipawn loss (ACPL) in open vs. closed positions.
+- `bishopPairAdvantage(games)` — detect when the player has the bishop pair (both bishops still on board, opponent missing at least one) and compute ACPL in those positions vs. positions without the bishop pair. Segregate by game phase (opening, middlegame, endgame).
+
+*Insight:* "Your ACPL drops from 28 to 18 when you have the bishop pair — you know how to use them."
+
+### Blunder heatmap
+
+- `blunderHeatmap(games)` — build a 64-square heatmap showing which squares the player's blunders occurred on. Aggregate both the count of blunders and the average centipawn loss per square. Render as a chessboard with colour intensity.
+- `blunderPieceHeatmap(games)` — variant: heatmap of squares where the player's *pieces* were standing when a blunder was made (i.e. the "from" square of the blundered move).
+
+*Insight:* "You blunder most often when moving pieces from f2/f7 — watch those squares in the opening."
+
+### True performance rating
+
+- `estimatedPerformanceRating(games)` — use the formula `R_perf = R_avg_opponents + K * (ACPL_avg - ACPL_player) / σ` where `K = 10` and `σ` is the standard deviation of ACPL. Compute a "true" rating that reflects quality of play independent of results.
+- `ratingByPhase(games)` — break the above down by opening / middlegame / endgame ACPL to estimate a distinct rating per phase.
+
+*Insight:* "Your endgame plays like an 1800, but your opening is at 2100 level."
+
+### Game of the Week
+
+- `gameOfTheWeek(games)` — select one standout game based on a composite score:
+  - Highest player accuracy (chess.com `playerAccuracy`)
+  - Largest single-move eval swing in the player's favour (biggest comeback)
+  - Most `wasBestMove` flags across key positions
+- Return the game UUID, the badge label ("Most Accurate", "Biggest Comeback", "Engine-Like Precision"), and a 2–3 sentence narrative summary of why it stood out.
+
+### Transposition analysis
+
+- `transpositionWeaknesses(games)` — for each game, extract the first 12 moves as UCI sequences. Hash sequences of length 4–8 moves and detect repeats across games. For repeated sequences, compute the average ACPL and win rate. Flag any sequence where average ACPL > 30 or win rate < 35% — these are "trap transpositions" where the player repeatedly enters bad lines.
+- Group flagged sequences by the ECO of the game they occurred in, so the player can see which opening leads to the problematic transposition.
+
+*Insight:* "You've reached this exact same bad middlegame 6 times from 3 different openings — here's the move-order mistake."
+
+### Phase-specific ACPL
+
+- `acplByPhase(games)` — compute per-move ACPL aggregated by phase: opening (moves 1–10), middlegame (moves 11–30), endgame (moves 31+). Return average, median, and standard deviation for each phase.
+- `phaseAcplVsRating(games)` — compare phase ACPL to opponent rating to see which phase deteriorates most under pressure.
+
+*Insight:* "Your opening is solid (ACPL 15), but your endgame is bleeding points (ACPL 45) — you're losing winnable positions."
+
+### Tilt detection
+
+- `tiltAnalysis(games)` — compare the average ACPL and blunder count in games immediately following a loss vs. games following a win or draw. Compute the percentage difference and flag if it exceeds a threshold (e.g. 8% worse).
+- `tiltByTimeControl(games)` — break tilt down by time class, since tilt may manifest more in blitz than rapid.
+- `sessionImpact(games)` — if multiple games are played on the same day, compute whether ACPL drifts upward (worsens) over a session.
+
+*Insight:* "You play 8% worse (ACPL +25) in games right after a loss — take a 5-minute break."
+
+### Opponent-type tendencies
+
+- `oppositeCastlingPerformance(games)` — detect games where the player and opponent castled on opposite sides (kingside vs. queenside). Compare win rate and ACPL to same-side castling games.
+- `ratingGapAnalysis(games)` — group games by the rating difference (player minus opponent) into buckets: heavily favoured (>+200), slightly favoured (+50 to +200), even (±50), underdog (-50 to -200), heavy underdog (<-200). Compute win rate and ACPL per bucket.
+- `nemesisDetection(games)` — find opponents the player has faced 3+ times with a win rate below 30%. List the opponent username, rating, and games played.
+
+### Chess Wrapped
+
+- `chessWrapped(games, username)` — produce a stylish summary object (and a corresponding UI component) containing:
+  - Most played opening (by count)
+  - Best win (highest accuracy in a won game)
+  - Most painful blunder (largest single-move swing ≤ -500cp)
+  - Highest accuracy game overall
+  - Longest winning streak
+  - Longest losing streak
+  - Nemesis opponent (most losses to a single player)
+  - Favourite time of day to play (from game `date` / `end_time`)
+  - Total games, total moves, total hours played
+  - Favourite piece to capture with (most captures by piece type)
+  - Best month (highest win rate in a calendar month)
+
+*Insight:* A single shareable card or image that sums up the player's chess year.
+
+**Checkpoint:** Each group of functions returns typed, non-empty results on a sample dataset. Wire `gameOfTheWeek` and `chessWrapped` to the UI first — they're the most visually impactful.
 
 ---
 
