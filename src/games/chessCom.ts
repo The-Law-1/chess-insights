@@ -21,6 +21,20 @@ export interface RawGame {
   eco: { url: string | null; name: string | null; code: string | null }
 }
 
+/** Shape of a game as returned by the chess.com API (eco can be string or object). */
+interface ApiGame {
+  pgn?: string
+  url?: string
+  uuid?: string
+  accuracies?: { white?: number; black?: number } | null
+  white: { username: string; rating: number; result: string }
+  black: { username: string; rating: number; result: string }
+  time_class?: string
+  time_control?: string
+  end_time?: number
+  eco?: string | { url?: string; name?: string; code?: string }
+}
+
 export interface FetchProgress {
   monthsDone: number
   monthsTotal: number
@@ -100,14 +114,19 @@ const fetchMonthGames = async (username: string, year: number, month: number): P
     throw new Error(`Chess.com request failed (${response.status}).`)
   }
 
-  const data = await response.json()
-  const games = Array.isArray(data.games) ? data.games : []
+  const data: { games?: unknown } = await response.json()
+  const rawGames: ApiGame[] = Array.isArray(data.games) ? data.games as ApiGame[] : []
 
-  return games.map((game) => {
+  return rawGames.map((game): RawGame => {
     const pgn = game.pgn ?? ''
-    const ecoUrl = parseHeader(pgn, 'ECOUrl') ?? game.eco ?? null
-    const ecoCode = parseHeader(pgn, 'ECO') ?? null
-    const openingName = parseEcoName(pgn, ecoUrl)
+    const ecoFromApi = game.eco
+    const ecoUrlFromApi = typeof ecoFromApi === 'object' ? ecoFromApi.url : ecoFromApi
+    const ecoNameFromApi = typeof ecoFromApi === 'object' ? ecoFromApi.name : undefined
+    const ecoCodeFromApi = typeof ecoFromApi === 'object' ? ecoFromApi.code : undefined
+
+    const ecoUrl = parseHeader(pgn, 'ECOUrl') ?? ecoUrlFromApi ?? null
+    const ecoCode = parseHeader(pgn, 'ECO') ?? ecoCodeFromApi ?? null
+    const openingName = parseEcoName(pgn, ecoUrl) ?? ecoNameFromApi ?? null
 
     return {
       pgn,

@@ -3,12 +3,14 @@ import { computed, ref } from 'vue';
 import Openings from './stats/Openings.vue';
 import Endgames from './stats/Endgames.vue';
 import CastlingTiming from './stats/CastlingTiming.vue';
+import GameLengthVsResult from './stats/GameLengthVsResult.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
     Openings,
     Endgames,
     CastlingTiming,
+    GameLengthVsResult,
 };
 
 type TabKey = keyof typeof tabs;

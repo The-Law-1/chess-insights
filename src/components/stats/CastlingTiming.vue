@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
-import { Chart, registerables } from 'chart.js';
+import { Chart } from 'chart.js';
+import { registerCharts, winRateYAxis, baseChartOptions } from '../chart';
 import type { AnalysedGame } from '../../analysis/types';
 
-Chart.register(...registerables);
+registerCharts();
 
 const props = defineProps<{
     games: AnalysedGame[]
@@ -94,26 +95,9 @@ function buildConfig() {
                 },
             ],
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
+        options: baseChartOptions({
             scales: {
-                y: {
-                    min: -5,
-                    max: 105,
-                    title: {
-                        display: true,
-                        text: 'Win rate (%)',
-                    },
-                    afterBuildTicks: (axis: any) => {
-                        axis.ticks = [
-                            { value: 0 }, { value: 25 }, { value: 50 }, { value: 75 }, { value: 100 },
-                        ];
-                    },
-                    ticks: {
-                        callback: (value: any) => value + '%',
-                    },
-                },
+                y: winRateYAxis(),
                 x: {
                     title: {
                         display: true,
@@ -136,15 +120,8 @@ function buildConfig() {
                         },
                     },
                 },
-                legend: {
-                    position: 'bottom' as const,
-                },
             },
-            interaction: {
-                intersect: false,
-                mode: 'index' as const,
-            },
-        },
+        }),
     };
 }
 
