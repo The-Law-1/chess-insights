@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia'
 import { useAnalysisStore } from '../stores/analysisStore'
 import { useGameStore } from '../stores/gameStore'
 import type { TimeClass } from '../games/chessCom'
-import Openings from '../components/stats/Openings.vue'
 import StatsTabs from '../components/StatsTabs.vue'
 
 const store = useGameStore()
