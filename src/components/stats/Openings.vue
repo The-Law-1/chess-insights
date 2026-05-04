@@ -46,7 +46,7 @@ const rows = computed(() => openings.value.map((opening) => ({
 <template>
     <StatsTable
         title="Openings"
-        field-label="Opening"
+        fieldNameLabel="Opening"
         :rows="rows"
     />
 </template>

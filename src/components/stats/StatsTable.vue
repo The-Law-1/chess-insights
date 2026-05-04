@@ -11,10 +11,14 @@ type StatsRow = {
 const props = withDefaults(defineProps<{
     title: string;
     rows: StatsRow[];
-    fieldLabel?: string;
+    fieldNameLabel?: string;
+    countLabel?: string;
+    winrateLabel?: string;
     description?: string;
 }>(), {
-    fieldLabel: 'Field'
+    fieldNameLabel: 'Field',
+    countLabel: 'Count',
+    winrateLabel: 'Win Rate'
 });
 
 const sortKey = ref<'count' | 'winrate'>('count');
@@ -50,10 +54,10 @@ function toggleSort(key: 'count' | 'winrate') {
         <table class="stats-table__table">
             <thead>
                 <tr>
-                    <th class="stats-table__name">{{ fieldLabel }}</th>
+                    <th class="stats-table__name">{{ fieldNameLabel }}</th>
                     <th class="stats-table__numeric">
                         <button type="button" class="stats-table__sort" @click="toggleSort('count')">
-                            <span>Count</span>
+                            <span>{{ countLabel }}</span>
                             <ChevronUpIcon
                                 class="stats-table__chevron"
                                 :class="sortKey === 'count' && sortDir === 'asc' ? 'is-asc' : ''"
@@ -62,7 +66,7 @@ function toggleSort(key: 'count' | 'winrate') {
                     </th>
                     <th class="stats-table__numeric">
                         <button type="button" class="stats-table__sort" @click="toggleSort('winrate')">
-                            <span>Win Rate</span>
+                            <span>{{ winrateLabel }}</span>
                             <ChevronUpIcon
                                 class="stats-table__chevron"
                                 :class="sortKey === 'winrate' && sortDir === 'asc' ? 'is-asc' : ''"

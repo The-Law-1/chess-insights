@@ -240,7 +240,7 @@ interface PieceActivityMap {
 
 Implement these as pure functions in `src/stats/engineFree.ts`, each taking `AnalysedGame[]` and returning a typed result:
 
-- `winRateByOpening(games)` — group by `openingName`, return `{ name, wins, losses, draws, winRate }[]` sorted by game count
+- `winRateByOpening(games)` — group by `openingName`, return `{ name, wins, losses, draws, winRate }[]` sorted by game count (done!)
 - `castlingTimingAnalysis(games)` — distribution of castling ply, correlation with result
 - `gameLengthVsResult(games)` — scatter data: total moves vs win/loss/draw
 - `timeSpentVsMoveQuality(games)` — for each move that was a blunder, what was `timeSpentSeconds`? Build a histogram

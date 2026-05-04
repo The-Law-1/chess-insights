@@ -64,7 +64,7 @@ const rows = computed(() => endgameTypes.value.map((endgame) => ({
 
         <StatsTable
         title="Endgames"
-        field-label="Endgame"
+        fieldNameLabel="Endgame"
         description="Your material balance at the end of the game. The player's material is on the left hand side."
         :rows="rows"
         />
