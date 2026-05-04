@@ -15,7 +15,7 @@ import type {
   TimeProfile,
 } from './types'
 
-const ANALYSIS_DEPTH = 6
+const ANALYSIS_DEPTH = 1
 const BLUNDER_THRESHOLD = -150
 
 const ENDGAME_TYPE_RE = /^K([QBNRP]*)K([QBNRP]*)(?:_(\d{4}))?(?:_([KQkq]+))?$/
