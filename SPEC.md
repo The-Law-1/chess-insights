@@ -244,8 +244,8 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 - `castlingTimingAnalysis(games)` — distribution of castling ply, correlation with result (done!)
 - `gameLengthVsResult(games)` — scatter data: total moves vs win/loss/draw (done!)
 - `timeSpentVsMoveQuality(games)` — for each move that was a blunder, what was `timeSpentSeconds`? Build a histogram
-- `pieceActivityCorrelation(games)` — scatter data: at what move were all your minor pieces developed (moved once) compare with winrate
-- `averageTimeSpentPerMove(games)` — average time spent per move vs winrate graph
+- `pieceActivityCorrelation(games)` — scatter data: at what move were all your minor pieces developed (moved once) compare with winrate (done!)
+- `averageTimeSpentPerMove(games)` — average time spent per move vs winrate graph (done!)
 - `pawnStructureEvents(games)` — count isolated pawns, passed pawns reaching rank 6/7 per game; correlate with result
 - `blundersByGamePhase(games)` — aggregate `phaseBlunderCounts` across all games
 - `openingDeviationTiming(games)` — at what ply do you leave book vs winrate
