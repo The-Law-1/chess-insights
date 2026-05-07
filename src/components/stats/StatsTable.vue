@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
     countLabel?: string;
     winrateLabel?: string;
     description?: string;
+    onRowClick?: (fieldName: string) => void;
 }>(), {
     fieldNameLabel: 'Field',
     countLabel: 'Count',
@@ -76,8 +77,15 @@ function toggleSort(key: 'count' | 'winrate') {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in sortedRows" :key="row.fieldName">
-                    <td>{{ row.fieldName }}</td>
+                <tr
+                    v-for="row in sortedRows"
+                    :key="row.fieldName"
+                    :class="{ 'stats-table__row--clickable': props.onRowClick }"
+                >
+                    <td
+                        :class="{ 'stats-table__name--clickable': props.onRowClick }"
+                        @click="props.onRowClick?.(row.fieldName)"
+                    >{{ row.fieldName }}</td>
                     <td class="stats-table__numeric">{{ row.count }}</td>
                     <td
                         class="stats-table__numeric"
@@ -187,6 +195,21 @@ function toggleSort(key: 'count' | 'winrate') {
 .stats-table__win--bad {
     color: #dc2626;
     font-weight: 600;
+}
+
+.stats-table__row--clickable {
+    cursor: pointer;
+}
+
+.stats-table__name--clickable {
+    color: var(--tabs-accent, #2b7a78);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: text-decoration-color 0.15s ease;
+}
+
+.stats-table__row--clickable:hover .stats-table__name--clickable {
+    text-decoration-color: currentColor;
 }
 
 .stats-table__description {

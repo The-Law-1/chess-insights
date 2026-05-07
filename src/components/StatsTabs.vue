@@ -7,6 +7,7 @@ import GameLengthVsResult from './stats/GameLengthVsResult.vue';
 import PieceActivity from './stats/PieceActivity.vue';
 import AverageTimePerMove from './stats/AverageTimePerMove.vue';
 import PawnStructure from './stats/PawnStructure.vue';
+import BadPositions from './stats/BadPositions.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -17,6 +18,7 @@ const tabs = {
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,
     PawnStructure,
+    BadPositions,
 };
 
 type TabKey = keyof typeof tabs;
@@ -79,6 +81,7 @@ const setTab = (name: TabKey) => {
     gap: 10px;
     border-bottom: 1px solid var(--tabs-border);
     padding-bottom: 8px;
+    overflow-x: auto;
 }
 
 .tab-button {
