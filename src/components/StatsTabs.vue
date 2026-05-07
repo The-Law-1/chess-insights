@@ -6,6 +6,7 @@ import CastlingTiming from './stats/CastlingTiming.vue';
 import GameLengthVsResult from './stats/GameLengthVsResult.vue';
 import PieceActivity from './stats/PieceActivity.vue';
 import AverageTimePerMove from './stats/AverageTimePerMove.vue';
+import PawnStructure from './stats/PawnStructure.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -15,6 +16,7 @@ const tabs = {
     GameLengthVsResult,
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,
+    PawnStructure,
 };
 
 type TabKey = keyof typeof tabs;
