@@ -8,12 +8,14 @@ import PieceActivity from './stats/PieceActivity.vue';
 import AverageTimePerMove from './stats/AverageTimePerMove.vue';
 import PawnStructure from './stats/PawnStructure.vue';
 import BadPositions from './stats/BadPositions.vue';
+import CastlingSide from './stats/CastlingSide.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
     Openings,
     Endgames,
     CastlingTiming,
+    CastlingSide,
     GameLengthVsResult,
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,

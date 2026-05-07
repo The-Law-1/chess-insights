@@ -6,6 +6,8 @@ export type PlayerSide = 'white' | 'black'
 
 export type PlayerResult = 'win' | 'loss' | 'draw'
 
+export type CastlingSide = 'kingside' | 'queenside'
+
 export interface EvaluatedPosition {
   plyIndex: number
   fen: string
@@ -90,6 +92,8 @@ export interface AnalysedGame {
   pieceActivity: PieceActivityMap
   playerCastledAtMove: number | null
   opponentCastledAtMove: number | null
+  playerCastlingSide: CastlingSide | null
+  opponentCastlingSide: CastlingSide | null
   endgameType: EndgameType | null
   totalMoves: number
 }

@@ -6,6 +6,7 @@ import type { EndgameType } from '../pgn/types'
 import type {
   AnalysedGame,
   Blunder,
+  CastlingSide,
   EvaluatedPosition,
   PhaseBlunderCounts,
   PieceActivityEntry,
@@ -315,6 +316,13 @@ const buildPhaseBlunderCounts = (blunders: Blunder[]): PhaseBlunderCounts => {
   return counts
 }
 
+const getCastlingSide = (frames: ReturnType<typeof parseGame>['frames'], color: 'w' | 'b'): CastlingSide | null => {
+  const frame = frames.find((f) => f.color === color && f.isCastling)
+  if (!frame) return null
+  const to = frame.uci.slice(2, 4)
+  return to[0] === 'g' ? 'kingside' : 'queenside'
+}
+
 export const analyseGame = async (
   raw: RawGame,
   username: string,
@@ -407,6 +415,8 @@ export const analyseGame = async (
       playerSide === 'w' ? parsed.metadata.whiteCastledAtMove ?? null : parsed.metadata.blackCastledAtMove ?? null,
     opponentCastledAtMove:
       opponentSide === 'w' ? parsed.metadata.whiteCastledAtMove ?? null : parsed.metadata.blackCastledAtMove ?? null,
+    playerCastlingSide: getCastlingSide(parsed.frames, playerSide),
+    opponentCastlingSide: getCastlingSide(parsed.frames, opponentSide),
     endgameType: parsed.metadata.endgameType
       ? normalizeEndgameType(parsed.metadata.endgameType, playerColor)
       : null,
