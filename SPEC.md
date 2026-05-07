@@ -242,12 +242,15 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 
 - `winRateByOpening(games)` — group by `openingName`, return `{ name, wins, losses, draws, winRate }[]` sorted by game count (done!)
 - `castlingTimingAnalysis(games)` — distribution of castling ply, correlation with result (done!)
-- `gameLengthVsResult(games)` — scatter data: total moves vs win/loss/draw
+- `gameLengthVsResult(games)` — scatter data: total moves vs win/loss/draw (done!)
 - `timeSpentVsMoveQuality(games)` — for each move that was a blunder, what was `timeSpentSeconds`? Build a histogram
-- `pieceActivityCorrelation(games)` — average unique squares per piece type in wins vs losses
+- `pieceActivityCorrelation(games)` — scatter data: at what move were all your minor pieces developed (moved once) compare with winrate
+- `averageTimeSpentPerMove(games)` — average time spent per move vs winrate graph
 - `pawnStructureEvents(games)` — count isolated pawns, passed pawns reaching rank 6/7 per game; correlate with result
 - `blundersByGamePhase(games)` — aggregate `phaseBlunderCounts` across all games
-- `openingDeviationTiming(games)` — at what ply do you leave book on average, per opening
+- `openingDeviationTiming(games)` — at what ply do you leave book vs winrate
+- `groupedBadPositions(games)` — find positions(fens) (after opening! so after move 6 for instance) that occur in more than game, group them, order by winrate. On click open this URL with the fen https://lichess.org/analysis/{FEN}
+- `castlingSideComparison(games)` — compare winrate when same-side castling, opposite side castling king side, vs queen side, etc... 
 
 **Checkpoint:** Each function returns a non-empty result on a sample dataset. Wire one (e.g. `winRateByOpening`) to a simple table component to confirm the data flows to the UI.
 

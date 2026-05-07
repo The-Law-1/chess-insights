@@ -50,6 +50,7 @@ export interface PieceActivityEntry {
   color: MoveFrame['color']
   uniqueSquares: string[]
   moveCount: number
+  firstMovedAtMove: number | null
 }
 
 // Keyed by piece identifier, e.g. "wN_g1".

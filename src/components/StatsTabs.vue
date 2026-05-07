@@ -4,6 +4,7 @@ import Openings from './stats/Openings.vue';
 import Endgames from './stats/Endgames.vue';
 import CastlingTiming from './stats/CastlingTiming.vue';
 import GameLengthVsResult from './stats/GameLengthVsResult.vue';
+import PieceActivity from './stats/PieceActivity.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -11,6 +12,7 @@ const tabs = {
     Endgames,
     CastlingTiming,
     GameLengthVsResult,
+    PieceActivity,
 };
 
 type TabKey = keyof typeof tabs;

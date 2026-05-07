@@ -15,7 +15,7 @@ import type {
   TimeProfile,
 } from './types'
 
-const ANALYSIS_DEPTH = 1
+const ANALYSIS_DEPTH = 6
 const BLUNDER_THRESHOLD = -150
 
 const ENDGAME_TYPE_RE = /^K([QBNRP]*)K([QBNRP]*)(?:_(\d{4}))?(?:_([KQkq]+))?$/
@@ -201,19 +201,23 @@ const buildPieceActivity = (frames: ReturnType<typeof parseGame>['frames']): Pie
       color: meta.color,
       uniqueSquares: [],
       moveCount: 0,
+      firstMovedAtMove: null,
       squares: new Set<string>(),
     }
     activity.set(id, entry)
     return entry
   }
 
-  const recordMove = (fen: string, from: string, to: string) => {
+  const recordMove = (fen: string, from: string, to: string, moveNumber: number) => {
     const resolved = resolvePieceId(maps, fen, from)
     if (!resolved.id || !resolved.meta) {
       return
     }
 
     const entry = ensureEntry(resolved.id, resolved.meta)
+    if (entry.firstMovedAtMove === null) {
+      entry.firstMovedAtMove = moveNumber
+    }
     entry.moveCount += 1
     entry.squares.add(from)
     entry.squares.add(to)
@@ -232,14 +236,14 @@ const buildPieceActivity = (frames: ReturnType<typeof parseGame>['frames']): Pie
       applyCapture(maps, from, to, Boolean(isPawn))
     }
 
-    recordMove(frame.fenBefore, from, to)
+    recordMove(frame.fenBefore, from, to, frame.moveNumber)
 
     if (frame.isCastling) {
       const isKingSide = to[0] === 'g'
       const isWhite = from[1] === '1'
       const rookFrom = isKingSide ? (isWhite ? 'h1' : 'h8') : isWhite ? 'a1' : 'a8'
       const rookTo = isKingSide ? (isWhite ? 'f1' : 'f8') : isWhite ? 'd1' : 'd8'
-      recordMove(frame.fenBefore, rookFrom, rookTo)
+      recordMove(frame.fenBefore, rookFrom, rookTo, frame.moveNumber)
     }
   })
 
@@ -250,6 +254,7 @@ const buildPieceActivity = (frames: ReturnType<typeof parseGame>['frames']): Pie
       color: entry.color,
       uniqueSquares: Array.from(entry.squares),
       moveCount: entry.moveCount,
+      firstMovedAtMove: entry.firstMovedAtMove,
     }
   })
 
