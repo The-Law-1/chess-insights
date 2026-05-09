@@ -5,7 +5,7 @@ import { ChevronUpIcon } from '@heroicons/vue/16/solid';
 type StatsRow = {
     fieldName: string;
     count: number;
-    winrate: number;
+    winrate?: number;
 };
 
 const props = withDefaults(defineProps<{
@@ -25,13 +25,15 @@ const props = withDefaults(defineProps<{
 const sortKey = ref<'count' | 'winrate'>('count');
 const sortDir = ref<'asc' | 'desc'>('desc');
 
+const showWinrate = computed(() => props.rows.some((row) => row.winrate !== undefined));
+
 const sortedRows = computed(() => {
     const sorted = [...props.rows];
     const direction = sortDir.value === 'asc' ? 1 : -1;
-    if (sortKey.value === 'count') {
-        return sorted.sort((a, b) => direction * (a.count - b.count));
+    if (sortKey.value === 'winrate') {
+        return sorted.sort((a, b) => direction * ((a.winrate ?? 0) - (b.winrate ?? 0)));
     }
-    return sorted.sort((a, b) => direction * (a.winrate - b.winrate));
+    return sorted.sort((a, b) => direction * (a.count - b.count));
 });
 
 function toggleSort(key: 'count' | 'winrate') {
@@ -52,7 +54,7 @@ function toggleSort(key: 'count' | 'winrate') {
             <p v-if="description" class="stats-table__description">{{ description }}</p>
         </div>
 
-        <table class="stats-table__table">
+        <table class="stats-table__table" :class="{ 'stats-table__table--no-winrate': !showWinrate }">
             <thead>
                 <tr>
                     <th class="stats-table__name">{{ fieldNameLabel }}</th>
@@ -65,7 +67,7 @@ function toggleSort(key: 'count' | 'winrate') {
                             />
                         </button>
                     </th>
-                    <th class="stats-table__numeric">
+                    <th v-if="showWinrate" class="stats-table__numeric">
                         <button type="button" class="stats-table__sort" @click="toggleSort('winrate')">
                             <span>{{ winrateLabel }}</span>
                             <ChevronUpIcon
@@ -88,10 +90,11 @@ function toggleSort(key: 'count' | 'winrate') {
                     >{{ row.fieldName }}</td>
                     <td class="stats-table__numeric">{{ row.count }}</td>
                     <td
+                        v-if="showWinrate"
                         class="stats-table__numeric"
-                        :class="row.winrate >= 50 ? 'stats-table__win--good' : 'stats-table__win--bad'"
+                        :class="(row.winrate ?? 0) >= 50 ? 'stats-table__win--good' : 'stats-table__win--bad'"
                     >
-                        {{ row.winrate.toFixed(2) }}%
+                        {{ (row.winrate ?? 0).toFixed(2) }}%
                     </td>
                 </tr>
             </tbody>
@@ -216,6 +219,14 @@ function toggleSort(key: 'count' | 'winrate') {
     margin-bottom: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.stats-table__table--no-winrate .stats-table__name {
+    width: 70%;
+}
+
+.stats-table__table--no-winrate .stats-table__numeric {
+    width: 30%;
 }
 
 @media (max-width: 768px) {

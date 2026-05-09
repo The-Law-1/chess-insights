@@ -250,7 +250,7 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 - `blundersByGamePhase(games)` — aggregate `phaseBlunderCounts` across all games
 - `openingDeviationTiming(games)` — at what ply do you leave book vs winrate
 - `groupedBadPositions(games)` — find positions(fens) (after opening! so after move 6 for instance) that occur in more than game, group them, order by winrate. On click open this URL with the fen https://lichess.org/analysis/{FEN} (done!)
-- `castlingSideComparison(games)` — compare winrate when same-side castling, opposite side castling king side, vs queen side, etc... 
+- `castlingSideComparison(games)` — compare winrate when same-side castling, opposite side castling king side, vs queen side, etc... (done!)
 
 **Checkpoint:** Each function returns a non-empty result on a sample dataset. Wire one (e.g. `winRateByOpening`) to a simple table component to confirm the data flows to the UI.
 
@@ -262,7 +262,7 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 
 These should be computed from the stored `keyPositions` already in `AnalysedGame` — no new engine calls needed.
 
-- `worstPieceToMove(games)` — for each blunder, what piece type was moved? Aggregate by piece type
+- `worstPieceToMove(games)` — for each blunder, what piece type was moved? Aggregate by piece type (done!)
 - `worstPieceToDefendAgainst(games)` — for each blunder, what piece type attacked or captured? Parse from `san`
 - `commonBadPositions(games)` — cluster FENs where blunders occurred (simplify: group by ECO + ply range); surface the `bestMove` from Stockfish for each
 - `blundersWhilePiecesUnmoved(games)` — cross-reference blunder ply with piece activity map; flag games where a blunder happened while ≥3 of the player's pieces had `moveCount === 0` (suggests opening development issues)
