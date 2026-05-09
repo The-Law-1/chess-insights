@@ -10,6 +10,7 @@ import PawnStructure from './stats/PawnStructure.vue';
 import BadPositions from './stats/BadPositions.vue';
 import CastlingSide from './stats/CastlingSide.vue';
 import WorstPieceToMove from './stats/WorstPieceToMove.vue';
+import WorstPieceToDefend from './stats/WorstPieceToDefend.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -18,6 +19,7 @@ const tabs = {
     CastlingTiming,
     CastlingSide,
     WorstPieceToMove,
+    WorstPieceToDefend,
     GameLengthVsResult,
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,
