@@ -263,10 +263,10 @@ Implement these as pure functions in `src/stats/engineFree.ts`, each taking `Ana
 These should be computed from the stored `keyPositions` already in `AnalysedGame` — no new engine calls needed.
 
 - `worstPieceToMove(games)` — for each blunder, what piece type was moved? Aggregate by piece type (done!)
-- `worstPieceToDefendAgainst(games)` — for each blunder, what piece type attacked or captured? Parse from `san`
-- `commonBadPositions(games)` — cluster FENs where blunders occurred (simplify: group by ECO + ply range); surface the `bestMove` from Stockfish for each
-- `blundersWhilePiecesUnmoved(games)` — cross-reference blunder ply with piece activity map; flag games where a blunder happened while ≥3 of the player's pieces had `moveCount === 0` (suggests opening development issues)
-- `endgamePerformance(games)` — classify endgame type from final material FEN, compute win/draw/loss rate per type
+- `worstPieceToDefendAgainst(games)` — for each blunder, what piece type attacked or captured? Parse from `san` (done!)
+- `commonBadPositions(games)` — cluster FENs where blunders occurred (simplify: group by ECO + ply range); surface the `bestMove` from Stockfish for each (cf above)
+- `blundersWhilePiecesUnmoved(games)` — cross-reference blunder ply with piece activity map; flag games where a blunder happened while ≥3 of the player's pieces had `moveCount === 0` (suggests opening development issues) (cf above, piece correlation)
+- `endgamePerformance(games)` — classify endgame type from final material FEN, compute win/draw/loss rate per type (done)
 
 ---
 
@@ -276,7 +276,7 @@ These should be computed from the stored `keyPositions` already in `AnalysedGame
 
 ### Positional insight
 
-- `openVsClosedACPL(games)` — classify each game's positions as open (≥4 centre pawns missing, files with no pawns) or closed (≤2 centre pawns moved, pawn chains interlocked) using FEN analysis. Compare average centipawn loss (ACPL) in open vs. closed positions.
+- `openVsClosedACPL(games)` — classify each game's positions as open (≥4 centre pawns missing, files with no pawns) or closed (≤2 centre pawns moved, pawn chains interlocked) using FEN analysis. Compare average centipawn loss (ACPL) in open vs. closed positions. (mid)
 - `bishopPairAdvantage(games)` — detect when the player has the bishop pair (both bishops still on board, opponent missing at least one) and compute ACPL in those positions vs. positions without the bishop pair. Segregate by game phase (opening, middlegame, endgame).
 
 *Insight:* "Your ACPL drops from 28 to 18 when you have the bishop pair — you know how to use them."
