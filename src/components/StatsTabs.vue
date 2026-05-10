@@ -13,6 +13,7 @@ import WorstPieceToMove from './stats/WorstPieceToMove.vue';
 import WorstPieceToDefend from './stats/WorstPieceToDefend.vue';
 import BishopPair from './stats/BishopPair.vue';
 import BlunderHeatmap from './stats/BlunderHeatmap.vue';
+import BlunderPieceHeatmap from './stats/BlunderPieceHeatmap.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -24,6 +25,7 @@ const tabs = {
     WorstPieceToDefend,
     BishopPair,
     BlunderHeatmap,
+    BlunderPieceHeatmap,
     GameLengthVsResult,
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,
