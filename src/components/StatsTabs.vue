@@ -11,6 +11,7 @@ import BadPositions from './stats/BadPositions.vue';
 import CastlingSide from './stats/CastlingSide.vue';
 import WorstPieceToMove from './stats/WorstPieceToMove.vue';
 import WorstPieceToDefend from './stats/WorstPieceToDefend.vue';
+import BishopPair from './stats/BishopPair.vue';
 import type { AnalysedGame } from '../analysis/types';
 
 const tabs = {
@@ -20,6 +21,7 @@ const tabs = {
     CastlingSide,
     WorstPieceToMove,
     WorstPieceToDefend,
+    BishopPair,
     GameLengthVsResult,
     PieceActivity,
     AvgTimePerMove: AverageTimePerMove,

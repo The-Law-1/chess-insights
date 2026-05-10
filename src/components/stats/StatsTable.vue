@@ -14,12 +14,14 @@ const props = withDefaults(defineProps<{
     fieldNameLabel?: string;
     countLabel?: string;
     winrateLabel?: string;
+    winrateSuffix?: string;
     description?: string;
     onRowClick?: (fieldName: string) => void;
 }>(), {
     fieldNameLabel: 'Field',
     countLabel: 'Count',
-    winrateLabel: 'Win Rate'
+    winrateLabel: 'Win Rate',
+    winrateSuffix: '%'
 });
 
 const sortKey = ref<'count' | 'winrate'>('count');
@@ -94,7 +96,7 @@ function toggleSort(key: 'count' | 'winrate') {
                         class="stats-table__numeric"
                         :class="(row.winrate ?? 0) >= 50 ? 'stats-table__win--good' : 'stats-table__win--bad'"
                     >
-                        {{ (row.winrate ?? 0).toFixed(2) }}%
+                        {{ (row.winrate ?? 0).toFixed(2) }}{{ props.winrateSuffix }}
                     </td>
                 </tr>
             </tbody>
