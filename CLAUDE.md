@@ -44,6 +44,33 @@ A browser-only SPA (Vue 3 + TypeScript + Vite) that fetches a player's chess.com
 - Never import or call Stockfish on the main thread — always through `StockfishWorker`.
 - Centipawn scores from Stockfish are from the side-to-move perspective. `analyseGame` normalizes them to the player's perspective by flipping the sign when the player is Black.
 
+**UI components** (`src/components/`):
+
+- `StatsTabs.vue` — Tab container that hosts all stat sub-components. Each tab is a Vue component receiving `games: AnalysedGame[]` as a prop. To add a new stat: (1) create a new `.vue` file in `src/components/stats/`, (2) import it and add an entry to the `tabs` object in `StatsTabs.vue`. The tab key (object key) is the display name shown in the UI. Tab keys use PascalCase names that condense well: e.g. `'BishopPair'`, `'BlunderHeatmap'`, `'RatingByPhase'`.
+
+- `StatsTable.vue` — Reusable sortable table for tabular stats. Props: `title` (string), `rows` (array of `{ fieldName: string, count: number, winrate?: number }`), optional `fieldNameLabel`, `countLabel`, `winrateLabel` to rename column headers, optional `description` (string, shown below title), optional `onRowClick` (callback receiving fieldName). The `winrate` column auto-hides when no rows have `winrate` defined. Use this component for any stat that is naturally a ranked list (openings, endgames, piece blunders, nemeses, etc.). The `winrate` column can be relabeled for non-winrate numeric values (e.g. ACPL, rating) via `winrateLabel`.
+
+- `chart.ts` — Chart.js setup helpers. `registerCharts()` registers all Chart.js components. `baseChartOptions(overrides?)` returns default chart config (responsive, legend at bottom). `winRateYAxis()` returns a y-axis config clamped to 0-100% with ticks at 0/25/50/75/100. Use Chart.js (via `<canvas ref="canvasRef">`) for line/bar charts. Import `Chart` from `chart.js` directly, call `registerCharts()` once in `<script setup>`, manage chart instances manually (create in `onMounted`, destroy in `onUnmounted`, watch computed data to re-render).
+
+- **Custom chessboard** — The project has no npm chessboard package. For square-based visualizations (heatmaps, piece positions), build an 8x8 CSS grid. Files are a1 to h8 where a1 is bottom-left (white's perspective, rank 1). Rank 8 at top, file a at left. Squares alternate light/dark with CSS.
+
+- **Stat component pattern** — Every component in `src/components/stats/` follows this structure:
+  ```vue
+  <script setup lang="ts">
+  import { computed } from 'vue';
+  import type { AnalysedGame } from '../../analysis/types';
+  // Optional: import StatsTable from './StatsTable.vue';
+  // Optional: import { Chart } from 'chart.js';
+
+  const props = defineProps<{ games: AnalysedGame[] }>();
+
+  const computedData = computed(() => {
+    // Pure computation from props.games
+  });
+  </script>
+  ```
+  All data computation happens in computed properties. No API calls, no store access. The component is purely a function of `games`.
+
 **Chess.com API notes:**
 - No auth required, but a `User-Agent` header is required (otherwise 403).
 - Games are served by month at `api.chess.com/pub/player/{username}/games/{YYYY}/{MM}`.
