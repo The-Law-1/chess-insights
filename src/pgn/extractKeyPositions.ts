@@ -66,6 +66,8 @@ const isPawnCapture = (frame: MoveFrame) => {
 
 const uniqueReasons = (reasons: KeyReason[]) => Array.from(new Set(reasons))
 
+const MAX_KEY_POSITIONS = 30
+
 export const extractKeyPositions = (
   frames: MoveFrame[],
   options: KeyPositionOptions = {},
@@ -183,12 +185,12 @@ export const extractKeyPositions = (
   }
 
   pushUnique(always)
-  if (selected.length < 15) {
+  if (selected.length < MAX_KEY_POSITIONS) {
     pushUnique(optionalPrimary)
   }
-  if (selected.length < 15) {
+  if (selected.length < MAX_KEY_POSITIONS) {
     pushUnique(optionalSecondary)
   }
 
-  return selected.slice(0, 15).sort((a, b) => a.plyIndex - b.plyIndex)
+  return selected.slice(0, MAX_KEY_POSITIONS).sort((a, b) => a.plyIndex - b.plyIndex)
 }

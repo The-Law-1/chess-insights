@@ -90,7 +90,7 @@ function toggleSort(key: 'count' | 'winrate') {
                         :class="{ 'stats-table__name--clickable': props.onRowClick }"
                         @click="props.onRowClick?.(row.fieldName)"
                     >{{ row.fieldName }}</td>
-                    <td class="stats-table__numeric">{{ row.count }}</td>
+                    <td class="stats-table__numeric">{{ Number.isInteger(row.count) ? row.count : row.count.toFixed(2) }}</td>
                     <td
                         v-if="showWinrate"
                         class="stats-table__numeric"
