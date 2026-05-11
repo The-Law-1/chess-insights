@@ -393,6 +393,7 @@ export const analyseGame = async (
 
     playerColor,
     playerRating: playerColor === 'white' ? raw.white.rating : raw.black.rating,
+    opponentUsername: playerColor === 'white' ? raw.black.username : raw.white.username,
     opponentRating: playerColor === 'white' ? raw.black.rating : raw.white.rating,
     result: toPlayerResult(playerColor === 'white' ? raw.white.result : raw.black.result),
 

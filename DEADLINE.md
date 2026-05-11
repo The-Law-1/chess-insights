@@ -93,6 +93,8 @@ Use `npm run dev` to verify it renders.
 
 **Task 1: Estimate rating by game phase from ACPL**
 
+Doesn't really work in practice, endgame rating is pretty hard to judge based on ACPL.
+
 ```
 Add a "RatingByPhase" stat that estimates the player's performance rating broken down by opening, middlegame, and endgame.
 

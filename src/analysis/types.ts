@@ -68,6 +68,7 @@ export interface AnalysedGame {
 
   playerColor: PlayerSide
   playerRating: number
+  opponentUsername: string
   opponentRating: number
   result: PlayerResult
 
