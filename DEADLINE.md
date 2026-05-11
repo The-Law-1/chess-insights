@@ -126,6 +126,7 @@ Use `npm run dev` to verify it renders.
 ## Friday, May 15 — Nemesis Detection
 
 **Task 1: Find opponents the player struggles against**
+Picked up: nothing.
 
 ```
 Add a "Nemesis" stat that detects opponents the player has faced multiple times with a poor win rate.

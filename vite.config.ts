@@ -8,6 +8,7 @@ const crossOriginHeaders = {
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/chess-insights/',
   plugins: [
     vue(),
     {
