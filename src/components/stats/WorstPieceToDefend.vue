@@ -36,7 +36,7 @@ const pieceBlunders = computed(() => {
             const responseFrame = game.frames[blunder.plyIndex + 1];
             if (!responseFrame || responseFrame.color === blunder.color) continue;
             // verify that the response did in fact attack or capture the blunder move
-            if (!responseFrame.isCapture === false) continue;
+            if (!responseFrame.isCapture) continue;
             const pieceName = getPieceName(responseFrame.san);
             counts[pieceName] += 1;
         }

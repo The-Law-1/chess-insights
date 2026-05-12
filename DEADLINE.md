@@ -257,3 +257,6 @@ The app is deployed and polished. Now share it:
 
 Allocate ~30 min for the final check and ~90 min for sharing and monitoring responses.
 ```
+
+
+Add a github icon to my profile + email/buy me a coffee 

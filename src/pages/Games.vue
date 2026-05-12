@@ -27,7 +27,7 @@ const endYear = ref(currentYear);
 const timeClass = ref<TimeClass>('all');
 
 const isLoading = computed(() => status.value === 'loading');
-const isAnalyzing = computed(() => analysisStatus.value === 'loading');
+const isAnalysing = computed(() => analysisStatus.value === 'loading');
 const showControls = ref(true);
 
 const hasAnalysedGames = computed(() => analysedGames.value.length > 0);
@@ -86,7 +86,7 @@ const handleSubmit = async () => {
 };
 
 const handleAnalyse = async () => {
-  if (!games.value.length || isAnalyzing.value) return;
+  if (!games.value.length || isAnalysing.value) return;
   const trimmed = username.value.trim();
   if (!trimmed) return;
   await analysisStore.analyseGames(games.value, trimmed);
@@ -158,11 +158,11 @@ const handleAnalyse = async () => {
               <button
                 type="button"
                 class="btn btn-accent"
-                :disabled="!games.length || isAnalyzing"
+                :disabled="!games.length || isAnalysing"
                 @click="handleAnalyse"
               >
-                <span v-if="isAnalyzing" class="btn-spinner"></span>
-                {{ isAnalyzing ? 'Analysing...' : 'Analyse games' }}
+                <span v-if="isAnalysing" class="btn-spinner"></span>
+                {{ isAnalysing ? 'Analysing...' : 'Analyse games' }}
               </button>
             </div>
           </form>

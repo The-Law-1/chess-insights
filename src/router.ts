@@ -12,9 +12,10 @@ const routes = [
   { path: `${root}/engine`, component: Engine },
   { path: `${root}/pgn`, component: Pgn },
   { path: `${root}/games`, component: Games },
+  { path: '/:pathMatch(.*)*', redirect: root },
 ]
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(root),
   routes,
 })

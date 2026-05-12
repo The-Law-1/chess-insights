@@ -66,7 +66,7 @@ const isPawnCapture = (frame: MoveFrame) => {
 
 const uniqueReasons = (reasons: KeyReason[]) => Array.from(new Set(reasons))
 
-const MAX_KEY_POSITIONS = 30
+const MAX_KEY_POSITIONS = 20
 
 export const extractKeyPositions = (
   frames: MoveFrame[],

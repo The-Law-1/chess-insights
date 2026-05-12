@@ -22,6 +22,15 @@ export default defineConfig({
         })
       },
     },
+    {
+      name: 'inject-coi-serviceworker',
+      transformIndexHtml(html) {
+        return html.replace(
+          '</body>',
+          '<script src="./coi-serviceworker.js"></script>\n  </body>',
+        )
+      },
+    },
   ],
   server: {
     headers: crossOriginHeaders,
