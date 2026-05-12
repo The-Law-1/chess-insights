@@ -91,6 +91,10 @@ const handleAnalyse = async () => {
   if (!trimmed) return;
   await analysisStore.analyseGames(games.value, trimmed);
 };
+
+const handleCancel = () => {
+  analysisStore.cancel();
+};
 </script>
 
 <template>
@@ -163,6 +167,14 @@ const handleAnalyse = async () => {
               >
                 <span v-if="isAnalysing" class="btn-spinner"></span>
                 {{ isAnalysing ? 'Analysing...' : 'Analyse games' }}
+              </button>
+              <button
+                v-if="isAnalysing"
+                type="button"
+                class="btn btn-cancel"
+                @click="handleCancel"
+              >
+                Cancel
               </button>
             </div>
           </form>
@@ -406,6 +418,17 @@ const handleAnalyse = async () => {
 .btn-accent:not(:disabled):hover {
   background: rgba(212, 165, 116, 0.15);
   border-color: var(--accent);
+}
+
+.btn-cancel {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border-default);
+}
+
+.btn-cancel:hover {
+  color: var(--loss);
+  border-color: var(--loss);
 }
 
 .btn-spinner {

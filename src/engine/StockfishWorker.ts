@@ -67,6 +67,12 @@ export default class StockfishWorker {
     return score ?? 0
   }
 
+  terminate(): void {
+    this.worker.terminate()
+    this.queue = []
+    this.current = null
+  }
+
   private handleMessage(line: string): void {
     if (!this.current) {
       return

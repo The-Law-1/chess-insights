@@ -15,6 +15,7 @@ interface AnalysisStoreState {
   status: 'idle' | 'loading' | 'error' | 'ready'
   error: string | null
   progress: AnalysisProgress
+  cancelled: boolean
 }
 
 const emptyProgress: AnalysisProgress = {
@@ -29,11 +30,13 @@ export const useAnalysisStore = defineStore('analysisStore', {
     status: 'idle',
     error: null,
     progress: { ...emptyProgress },
+    cancelled: false,
   }),
   actions: {
     async analyseGames(raws: RawGame[], username: string): Promise<void> {
       this.status = 'loading'
       this.error = null
+      this.cancelled = false
       this.analysedGames = []
       this.progress = { gamesDone: 0, gamesTotal: raws.length, currentLabel: null }
 
@@ -44,6 +47,8 @@ export const useAnalysisStore = defineStore('analysisStore', {
         await worker.sendCommand('isready')
 
         for (let index = 0; index < raws.length; index += 1) {
+          if (this.cancelled) break
+
           const raw = raws[index]
           this.progress = {
             gamesDone: index,
@@ -65,7 +70,12 @@ export const useAnalysisStore = defineStore('analysisStore', {
       } catch (error) {
         this.status = 'error'
         this.error = error instanceof Error ? error.message : 'Unknown error'
+      } finally {
+        worker.terminate()
       }
+    },
+    cancel(): void {
+      this.cancelled = true
     },
   },
 })
