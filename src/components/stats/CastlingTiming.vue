@@ -19,46 +19,46 @@ interface Bucket {
 }
 
 const chartData = computed(() => {
-    const playerMap: Record<number, Bucket> = {};
-    const opponentMap: Record<number, Bucket> = {};
+    const playerCastleBuckets: Record<number, Bucket> = {};
+    const opponentCastleBuckets: Record<number, Bucket> = {};
     let maxMove = 0;
 
     props.games.forEach(game => {
         if (game.playerCastledAtMove !== null) {
             const m = game.playerCastledAtMove;
-            if (!playerMap[m]) playerMap[m] = { wins: 0, total: 0 };
-            playerMap[m].total++;
-            if (game.result === 'win') playerMap[m].wins++;
+            if (!playerCastleBuckets[m]) playerCastleBuckets[m] = { wins: 0, total: 0 };
+            playerCastleBuckets[m].total++;
+            if (game.result === 'win') playerCastleBuckets[m].wins++;
             if (m > maxMove) maxMove = m;
         }
         if (game.opponentCastledAtMove !== null) {
             const m = game.opponentCastledAtMove;
-            if (!opponentMap[m]) opponentMap[m] = { wins: 0, total: 0 };
-            opponentMap[m].total++;
-            if (game.result === 'win') opponentMap[m].wins++;
+            if (!opponentCastleBuckets[m]) opponentCastleBuckets[m] = { wins: 0, total: 0 };
+            opponentCastleBuckets[m].total++;
+            if (game.result === 'win') opponentCastleBuckets[m].wins++;
             if (m > maxMove) maxMove = m;
         }
     });
 
     const labels: string[] = [];
-    const playerWinrates: (number | null)[] = [];
-    const playerCounts: number[] = [];
-    const opponentWinrates: (number | null)[] = [];
-    const opponentCounts: number[] = [];
+    const playerCastleWinrate: (number | null)[] = [];
+    const playerCastleCounts: number[] = [];
+    const opponentCastleWinrate: (number | null)[] = [];
+    const opponentCastleCounts: number[] = [];
 
     for (let move = 1; move <= maxMove; move++) {
         labels.push(String(move));
 
-        const p = playerMap[move];
-        playerWinrates.push(p ? (p.wins / p.total) * 100 : null);
-        playerCounts.push(p ? p.total : 0);
+        const p = playerCastleBuckets[move];
+        playerCastleWinrate.push(p ? (p.wins / p.total) * 100 : null);
+        playerCastleCounts.push(p ? p.total : 0);
 
-        const o = opponentMap[move];
-        opponentWinrates.push(o ? (o.wins / o.total) * 100 : null);
-        opponentCounts.push(o ? o.total : 0);
+        const o = opponentCastleBuckets[move];
+        opponentCastleWinrate.push(o ? (o.wins / o.total) * 100 : null);
+        opponentCastleCounts.push(o ? o.total : 0);
     }
 
-    return { labels, playerWinrates, playerCounts, opponentWinrates, opponentCounts, maxMove };
+    return { labels, playerCastleWinrate, playerCastleCounts, opponentCastleWinrate, opponentCastleCounts, maxMove };
 });
 
 const didNotCastleCount = computed(() =>
@@ -74,8 +74,8 @@ function buildConfig() {
             labels: d.labels,
             datasets: [
                 {
-                    label: 'When you castle',
-                    data: d.playerWinrates,
+                    label: 'You castle',
+                    data: d.playerCastleWinrate,
                     borderColor: '#3B82F6',
                     backgroundColor: '#3B82F6',
                     tension: 0,
@@ -84,8 +84,8 @@ function buildConfig() {
                     pointHoverRadius: 4,
                 },
                 {
-                    label: 'When opponent castles',
-                    data: d.opponentWinrates,
+                    label: 'Opponent castles',
+                    data: d.opponentCastleWinrate,
                     borderColor: '#EF4444',
                     backgroundColor: '#EF4444',
                     tension: 0,
@@ -111,10 +111,11 @@ function buildConfig() {
                         title: (items: any) => `Move ${items[0].label}`,
                         label: (ctx: any) => {
                             const isPlayer = ctx.datasetIndex === 0;
-                            const counts = isPlayer ? d.playerCounts : d.opponentCounts;
+                            const counts = isPlayer ? d.playerCastleCounts : d.opponentCastleCounts;
                             const count = counts[ctx.dataIndex];
+                            const who = isPlayer ? 'you' : 'your opponent';
                             return [
-                                `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`,
+                                `Your win rate when ${who} castled: ${ctx.parsed.y.toFixed(1)}%`,
                                 `${count} game${count !== 1 ? 's' : ''}`,
                             ];
                         },
@@ -148,7 +149,7 @@ onUnmounted(() => destroyChart());
     <div class="castling-timing">
         <h3 class="title">Castling Timing</h3>
         <p class="description">
-            When you castled and how it correlates with winning.
+            Your win rate by the move you (or your opponent) castled.
             <span v-if="didNotCastleCount > 0">
                 You did not castle in {{ didNotCastleCount }} game{{ didNotCastleCount !== 1 ? 's' : '' }}.
             </span>
