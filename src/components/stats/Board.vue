@@ -98,9 +98,9 @@ function getHeatColor(sq: SquareData): string {
     if (sq.count === 0 || maxAvgSwing.value === 0) return '';
     const avgSwing = sq.totalSwing / sq.count;
     const t = avgSwing / maxAvgSwing.value;
-    const r = Math.round(230 - t * 110);
-    const g = Math.round(80 - t * 65);
-    const b = Math.round(80 - t * 65);
+    const r = Math.round(220 - t * 110);
+    const g = Math.round(70 - t * 55);
+    const b = Math.round(70 - t * 55);
     return `rgb(${r}, ${g}, ${b})`;
 }
 
@@ -113,75 +113,69 @@ function getTooltip(name: string, sq: SquareData): string | undefined {
 
 <template>
     <div class="board-heatmap">
-        <div class="header">
-            <h3 class="title">{{ title }}</h3>
-            <div class="perspective-toggle" role="radiogroup" aria-label="Perspective">
-                <button
-                    type="button"
-                    class="toggle-btn"
-                    :class="{ active: perspective === 'white' }"
-                    role="radio"
-                    :aria-checked="perspective === 'white'"
-                    @click="setPerspective('white')"
-                >
-                    White
-                </button>
-                <button
-                    type="button"
-                    class="toggle-btn"
-                    :class="{ active: perspective === 'black' }"
-                    role="radio"
-                    :aria-checked="perspective === 'black'"
-                    @click="setPerspective('black')"
-                >
-                    Black
-                </button>
+        <div class="bh-header">
+            <div class="bh-title-row">
+                <h3 class="bh-title">{{ title }}</h3>
+                <div class="bh-toggle" role="radiogroup" aria-label="Perspective">
+                    <button
+                        type="button"
+                        class="bh-toggle-btn"
+                        :class="{ active: perspective === 'white' }"
+                        role="radio"
+                        :aria-checked="perspective === 'white'"
+                        @click="setPerspective('white')"
+                    >White</button>
+                    <button
+                        type="button"
+                        class="bh-toggle-btn"
+                        :class="{ active: perspective === 'black' }"
+                        role="radio"
+                        :aria-checked="perspective === 'black'"
+                        @click="setPerspective('black')"
+                    >Black</button>
+                </div>
             </div>
+            <p class="bh-desc">{{ description }}</p>
         </div>
 
-        <div v-if="totalBlunders === 0" class="empty-state">
+        <div v-if="totalBlunders === 0" class="bh-empty">
             {{ emptyMessage }}
         </div>
 
         <template v-else>
-            <p class="description">{{ description }}</p>
-
-            <div class="board-area">
-                <div class="rank-labels">
-                    <span v-for="r in rankLabels" :key="r" class="rank-label">{{ r }}</span>
+            <div class="bh-board-area">
+                <div class="bh-rank-labels">
+                    <span v-for="r in rankLabels" :key="r" class="bh-rank-label">{{ r }}</span>
                 </div>
-                <div class="board-right">
-                    <div class="board">
+                <div class="bh-board-right">
+                    <div class="bh-board">
                         <div
                             v-for="sq in allSquares"
                             :key="sq.name"
-                            class="square"
+                            class="bh-square"
                             :class="{
-                                light: sq.isLight && !hasBlunder(sq.data),
-                                dark: !sq.isLight && !hasBlunder(sq.data),
-                                'has-blunder': hasBlunder(sq.data),
+                                'bh-square--light': sq.isLight && !hasBlunder(sq.data),
+                                'bh-square--dark': !sq.isLight && !hasBlunder(sq.data),
+                                'bh-square--blunder': hasBlunder(sq.data),
                             }"
                             :style="hasBlunder(sq.data) ? { backgroundColor: getHeatColor(sq.data) } : {}"
                             :title="getTooltip(sq.name, sq.data)"
                         >
-                            <span
-                                v-if="sq.data.count > 0"
-                                class="count"
-                            >
+                            <span v-if="sq.data.count > 0" class="bh-count">
                                 {{ sq.data.count }}
                             </span>
                         </div>
                     </div>
-                    <div class="file-labels">
+                    <div class="bh-file-labels">
                         <span v-for="f in fileLabels" :key="f">{{ f }}</span>
                     </div>
                 </div>
             </div>
 
-            <div class="legend">
-                <span class="legend-label">Low</span>
-                <div class="legend-bar" />
-                <span class="legend-label">High</span>
+            <div class="bh-legend">
+                <span class="bh-legend-label">Low</span>
+                <div class="bh-legend-bar"></div>
+                <span class="bh-legend-label">High</span>
             </div>
         </template>
     </div>
@@ -192,146 +186,162 @@ function getTooltip(name: string, sq: SquareData): string | undefined {
     width: 100%;
 }
 
-.header {
+.bh-header {
+    margin-bottom: 16px;
+}
+
+.bh-title-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 0.25rem;
+    gap: 16px;
+    margin-bottom: 6px;
 }
 
-.title {
-    font-size: 1.125rem;
-    font-weight: 600;
+.bh-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--text-primary);
     margin: 0;
 }
 
-.perspective-toggle {
-    display: flex;
-    border: 1px solid #d1d5db;
-    border-radius: 999px;
-    overflow: hidden;
+.bh-desc {
+    color: var(--text-secondary);
+    font-size: 0.825rem;
+    line-height: 1.5;
 }
 
-.toggle-btn {
-    border: none;
-    background: transparent;
-    color: #6b7280;
-    padding: 4px 14px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 120ms ease, color 120ms ease;
-}
-
-.toggle-btn.active {
-    background: #2b7a78;
-    color: #fff;
-}
-
-.description {
-    color: #6b7280;
-    font-size: 0.875rem;
-    margin: 0 0 1rem 0;
-}
-
-.empty-state {
-    color: #9ca3af;
+.bh-empty {
+    color: var(--text-muted);
     text-align: center;
     padding: 3rem 0;
+    font-size: 0.9rem;
 }
 
-.board-area {
+/* ── Perspective toggle ── */
+.bh-toggle {
+    display: flex;
+    border: 1px solid var(--border-default);
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.bh-toggle-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.bh-toggle-btn.active {
+    background: var(--accent);
+    color: #0f1118;
+}
+
+/* ── Board ── */
+.bh-board-area {
     display: flex;
     gap: 4px;
 }
 
-.rank-labels {
+.bh-rank-labels {
     display: grid;
     grid-template-rows: repeat(8, 1fr);
-    padding-bottom: 18px;
+    padding-bottom: 20px;
     width: 18px;
 }
 
-.rank-label {
+.bh-rank-label {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.7rem;
-    color: #6b7280;
-    font-weight: 500;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
 }
 
-.board-right {
+.bh-board-right {
     display: flex;
     flex-direction: column;
     flex: 1;
     max-width: min(480px, 100%);
 }
 
-.board {
+.bh-board {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
     aspect-ratio: 1;
-    border: 2px solid #1f2937;
+    border: 1px solid var(--border-strong);
 }
 
-.square {
+.bh-square {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background-color 0.15s ease;
 }
 
-.square.light {
-    background-color: #f0d9b5;
+.bh-square--light {
+    background-color: #d4c4a8;
 }
 
-.square.dark {
-    background-color: #b58863;
+.bh-square--dark {
+    background-color: #7c6a54;
 }
 
-.square.has-blunder {
-    background-color: #fff;
+.bh-square--blunder {
+    /* color set inline */
 }
 
-.count {
-    font-size: 0.8rem;
-    font-weight: 700;
+.bh-count {
+    font-size: 0.75rem;
+    font-weight: 600;
     color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     pointer-events: none;
+    font-family: var(--font-mono);
 }
 
-.file-labels {
+.bh-file-labels {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    margin-top: 2px;
+    margin-top: 3px;
 }
 
-.file-labels span {
+.bh-file-labels span {
     text-align: center;
-    font-size: 0.7rem;
-    color: #6b7280;
-    font-weight: 500;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
 }
 
-.legend {
+/* ── Legend ── */
+.bh-legend {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 10px;
+    margin-top: 14px;
 }
 
-.legend-label {
-    font-size: 0.75rem;
-    color: #6b7280;
+.bh-legend-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
 }
 
-.legend-bar {
+.bh-legend-bar {
     width: 160px;
-    height: 14px;
-    border-radius: 999px;
-    background: linear-gradient(to right, rgb(250, 200, 200), rgb(155, 15, 15));
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #f0c8c0, #c41e3a);
 }
 </style>

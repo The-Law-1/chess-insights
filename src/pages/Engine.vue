@@ -4,6 +4,5 @@ import EngineDebug from '../components/EngineDebug.vue';
 </script>
 
 <template>
-    Hi!
     <EngineDebug/>
 </template>

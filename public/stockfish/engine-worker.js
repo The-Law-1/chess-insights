@@ -1,8 +1,10 @@
-importScripts('/stockfish/stockfish.js')
+const stockfishScriptUrl = new URL('stockfish.js', self.location.href).toString()
+
+importScripts(stockfishScriptUrl)
 
 let engine = null
 const pending = []
-const scriptUrl = new URL('/stockfish/stockfish.js', self.location.href).toString()
+const scriptUrl = stockfishScriptUrl
 
 Stockfish({ mainScriptUrlOrBlob: scriptUrl }).then((sf) => {
   engine = sf

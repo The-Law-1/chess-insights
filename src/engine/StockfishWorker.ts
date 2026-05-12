@@ -11,7 +11,7 @@ export default class StockfishWorker {
   private current: PendingRequest | null = null
 
   constructor() {
-    this.worker = new Worker('/stockfish/engine-worker.js')
+    this.worker = new Worker(`${import.meta.env.BASE_URL}stockfish/engine-worker.js`)
 
     this.worker.onmessage = (event: MessageEvent<string>) => {
       this.handleMessage(event.data)

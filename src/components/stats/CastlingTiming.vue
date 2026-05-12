@@ -167,14 +167,16 @@ onUnmounted(() => destroyChart());
 }
 
 .title {
-    font-size: 1.125rem;
-    font-weight: 600;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
     margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
 }
 
 .description {
-    color: #6b7280;
-    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
     margin: 0 0 1rem 0;
 }
 
@@ -186,7 +188,7 @@ onUnmounted(() => destroyChart());
 }
 
 .empty-state {
-    color: #9ca3af;
+    color: var(--text-muted);
     text-align: center;
     padding: 3rem 0;
 }
