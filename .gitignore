@@ -25,3 +25,9 @@ dist-ssr
 
 .venv
 .env
+
+CLAUDE.md
+DEADLINE.md
+SPEC.md
+.skills/
+.claude
