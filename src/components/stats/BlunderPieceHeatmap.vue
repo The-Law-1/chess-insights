@@ -24,7 +24,7 @@ const gameCount = computed(() => {
 });
 
 const description = computed(() =>
-    `Blunder origin squares from ${gameCount.value} game${gameCount.value !== 1 ? 's' : ''} as ${perspective.value}. Darker red = higher average centipawn loss. Hover for exact values.`
+    `From what square your blunders originated, from ${gameCount.value} game${gameCount.value !== 1 ? 's' : ''} as ${perspective.value}. Darker red = higher average centipawn loss. Hover for exact values.`
 );
 
 const emptyMessage = computed(() =>

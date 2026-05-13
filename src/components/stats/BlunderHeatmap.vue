@@ -52,7 +52,7 @@ const gameCount = computed(() => {
 });
 
 const description = computed(() =>
-    `Blunders from ${gameCount.value} game${gameCount.value !== 1 ? 's' : ''} as ${perspective.value}. Darker red = higher average centipawn loss. Hover for exact values.`
+    `What squares did your blunders land on, from ${gameCount.value} game${gameCount.value !== 1 ? 's' : ''} as ${perspective.value}. Darker red = higher average centipawn loss. Hover for exact values.`
 );
 
 const emptyMessage = computed(() =>
