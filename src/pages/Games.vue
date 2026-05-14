@@ -20,7 +20,7 @@ const {
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 12 }, (_, index) => currentYear - index);
 
-const maxGames = ref(1000);
+const maxGames = ref(200);
 const username = ref('');
 const startYear = ref(currentYear);
 const endYear = ref(currentYear);
