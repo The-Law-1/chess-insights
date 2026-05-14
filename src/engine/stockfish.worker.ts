@@ -21,18 +21,27 @@ const enginePromise: Promise<StockfishEngine> = Stockfish({
   },
 })
 
-enginePromise.then((engine) => {
-  engine.addMessageListener((line: string) => {
-    self.postMessage(line)
-  })
+enginePromise
+  .then((engine) => {
+    engine.addMessageListener((line: string) => {
+      self.postMessage(line)
+    })
 
-  while (pendingCommands.length > 0) {
-    const command = pendingCommands.shift()
-    if (command) {
-      engine.postMessage(command)
+    while (pendingCommands.length > 0) {
+      const command = pendingCommands.shift()
+      if (command) {
+        engine.postMessage(command)
+      }
     }
-  }
-})
+  })
+  .catch((err) => {
+    // Re-throw to trigger the worker's error event, which fires
+    // worker.onerror in the main thread. setTimeout lets the engine
+    // initialization promise settle before throwing.
+    setTimeout(() => {
+      throw err instanceof Error ? err : new Error(String(err))
+    }, 0)
+  })
 
 self.onmessage = (event: MessageEvent<string>) => {
   const command = event.data
