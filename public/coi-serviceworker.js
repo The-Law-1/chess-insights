@@ -27,6 +27,15 @@ if (typeof window === 'undefined') {
             return;
         }
 
+        // Only intercept same-origin requests. The COOP/COEP headers are only
+        // needed on same-origin responses to enable SharedArrayBuffer. Cross-origin
+        // requests (e.g. chess.com API) don't need them and intercepting those
+        // breaks CORS on Firefox.
+        const url = new URL(r.url);
+        if (url.origin !== self.location.origin) {
+            return;
+        }
+
         const request = (coepCredentialless && r.mode === "no-cors")
             ? new Request(r, {
                 credentials: "omit",
@@ -54,7 +63,10 @@ if (typeof window === 'undefined') {
                         headers: newHeaders,
                     });
                 })
-                .catch((e) => console.error(e))
+                .catch((e) => {
+                    console.error(e);
+                    throw e;
+                })
         );
     });
 
