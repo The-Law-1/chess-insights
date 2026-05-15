@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 
 
 import Engine from './pages/Engine.vue'
@@ -6,6 +6,7 @@ import Games from './pages/Games.vue'
 import Pgn from './pages/Pgn.vue'
 
 const routes = [
+  { path: "/chess-insights", component: Games },
   { path: "/", component: Games },
   { path: "/engine", component: Engine },
   { path: "/pgn", component: Pgn },
@@ -14,6 +15,6 @@ const routes = [
 ]
 
 export const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 })
