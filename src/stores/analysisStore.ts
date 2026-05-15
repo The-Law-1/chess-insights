@@ -44,8 +44,8 @@ export const useAnalysisStore = defineStore('analysisStore', {
         this.status = 'error'
         this.error =
           'Cross-origin isolation is not enabled — Stockfish WASM requires SharedArrayBuffer. ' +
-          'If you are on mobile, make sure you are accessing this page via localhost, not an IP address. ' +
-          'Mobile browsers require a secure context (localhost or HTTPS) for service workers.'
+          'Incognito/private browsing mode disables service workers, which are required to enable cross-origin isolation. ' +
+          'Please use a regular (non-incognito) browser tab.'
         return
       }
 
