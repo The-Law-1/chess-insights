@@ -210,7 +210,7 @@ const handleCancel = () => {
           </div>
 
           <p v-if="status === 'error'" class="error-msg">{{ error }}</p>
-          <p v-if="analysisStatus === 'error'" class="error-msg">{{ analysisError }}</p>
+          <p v-if="analysisStatus === 'error' || stockfishFailed" class="error-msg">{{ analysisError }}</p>
           <p v-if="status === 'ready'" class="status-text">{{ games.length }} games in store</p>
           <p v-if="analysisStatus === 'ready'" class="status-text">
             {{ analysedGames.length }} games analysed
