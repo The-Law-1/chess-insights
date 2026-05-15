@@ -43,26 +43,32 @@ export const useAnalysisStore = defineStore('analysisStore', {
       this.analysedGames = []
       this.progress = { gamesDone: 0, gamesTotal: raws.length, currentLabel: null }
 
+      let stockfishFailed = false
+
       if (!window.crossOriginIsolated) {
         this.status = 'error'
         this.error =
-          'Cross-origin isolation is not enabled — Stockfish WASM requires SharedArrayBuffer. ' +
-          'Incognito/private browsing mode disables service workers, which are required to enable cross-origin isolation. ' +
-          'Please use a regular (non-incognito) browser tab.'
-        return
-      }
+          'An error occurred while initializing Stockfish WASM. ' +
+          'Incognito/private browsing mode disables service workers, could also be an obscure service worker issue. ' +
+          "If you are on mobile, try closing the tab and re-opening, or using a desktop."
 
-      const worker = new StockfishWorker()
-      let stockfishFailed = false
-
-      try {
-        await worker.sendCommand('uci')
-        await worker.sendCommand('isready')
-      } catch {
         stockfishFailed = true
         this.stockfishFailed = true
-        worker.terminate()
       }
+
+      let worker = null;
+      if (!stockfishFailed) {
+        worker = new StockfishWorker()
+        try {
+          await worker.sendCommand('uci')
+          await worker.sendCommand('isready')
+        } catch {
+          stockfishFailed = true
+          this.stockfishFailed = true
+          worker?.terminate()
+        }
+      }
+
 
       // Accumulate in a plain (non-reactive) array to avoid triggering
       // every stat component's computed properties on each push. A single
@@ -94,7 +100,7 @@ export const useAnalysisStore = defineStore('analysisStore', {
           if (!stockfishFailed) {
             stockfishFailed = true
             this.stockfishFailed = true
-            worker.terminate()
+            worker?.terminate()
             const analysed = await analyseGame(raw, username, null)
             results.push(analysed)
             await new Promise((resolve) => setTimeout(resolve, 0))
@@ -109,7 +115,7 @@ export const useAnalysisStore = defineStore('analysisStore', {
       }
 
       if (!stockfishFailed) {
-        worker.terminate()
+        worker?.terminate()
       }
 
       this.analysedGames = results
