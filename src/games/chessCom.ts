@@ -98,7 +98,6 @@ const fetchMonthGames = async (username: string, year: number, month: number): P
   const response = await fetch(url, {
     headers: {
       Accept: 'application/json',
-      'User-Agent': 'chess-analysis-4',
     },
   })
 
