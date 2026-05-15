@@ -16,6 +16,7 @@ interface AnalysisStoreState {
   error: string | null
   progress: AnalysisProgress
   cancelled: boolean
+  stockfishFailed: boolean
 }
 
 const emptyProgress: AnalysisProgress = {
@@ -31,12 +32,14 @@ export const useAnalysisStore = defineStore('analysisStore', {
     error: null,
     progress: { ...emptyProgress },
     cancelled: false,
+    stockfishFailed: false,
   }),
   actions: {
     async analyseGames(raws: RawGame[], username: string): Promise<void> {
       this.status = 'loading'
       this.error = null
       this.cancelled = false
+      this.stockfishFailed = false
       this.analysedGames = []
       this.progress = { gamesDone: 0, gamesTotal: raws.length, currentLabel: null }
 
@@ -50,50 +53,67 @@ export const useAnalysisStore = defineStore('analysisStore', {
       }
 
       const worker = new StockfishWorker()
+      let stockfishFailed = false
 
       try {
         await worker.sendCommand('uci')
         await worker.sendCommand('isready')
-
-        // Accumulate in a plain (non-reactive) array to avoid triggering
-        // every stat component's computed properties on each push. A single
-        // assignment at the end gives one render pass instead of O(n²).
-        const results: AnalysedGame[] = []
-
-        for (let index = 0; index < raws.length; index += 1) {
-          if (this.cancelled) break
-
-          const raw = raws[index]
-          this.progress = {
-            gamesDone: index,
-            gamesTotal: raws.length,
-            currentLabel: raw.url || raw.uuid || null,
-          }
-
-          const analysed = await analyseGame(raw, username, worker)
-          results.push(analysed)
-
-          this.progress = {
-            gamesDone: index + 1,
-            gamesTotal: raws.length,
-            currentLabel: raw.url || raw.uuid || null,
-          }
-        }
-
-        this.analysedGames = results
-        this.status = 'ready'
-      } catch (error) {
-        this.status = 'error'
-        if (error instanceof Error) {
-          this.error = error.message
-        } else if (error instanceof ErrorEvent) {
-          this.error = error.message || 'Worker error — SharedArrayBuffer may not be available'
-        } else {
-          this.error = String(error)
-        }
-      } finally {
+      } catch {
+        stockfishFailed = true
+        this.stockfishFailed = true
         worker.terminate()
       }
+
+      // Accumulate in a plain (non-reactive) array to avoid triggering
+      // every stat component's computed properties on each push. A single
+      // assignment at the end gives one render pass instead of O(n²).
+      const results: AnalysedGame[] = []
+
+      for (let index = 0; index < raws.length; index += 1) {
+        if (this.cancelled) break
+
+        const raw = raws[index]
+        this.progress = {
+          gamesDone: index,
+          gamesTotal: raws.length,
+          currentLabel: raw.url || raw.uuid || null,
+        }
+
+        try {
+          const analysed = stockfishFailed
+            ? await analyseGame(raw, username, null)
+            : await analyseGame(raw, username, worker)
+          results.push(analysed)
+          if (stockfishFailed) {
+            // Yield to the event loop so Vue can re-render the progress bar.
+            // Without Stockfish, analyseGame runs synchronously and the UI
+            // would never see intermediate progress.
+            await new Promise((resolve) => setTimeout(resolve, 0))
+          }
+        } catch (error) {
+          if (!stockfishFailed) {
+            stockfishFailed = true
+            this.stockfishFailed = true
+            worker.terminate()
+            const analysed = await analyseGame(raw, username, null)
+            results.push(analysed)
+            await new Promise((resolve) => setTimeout(resolve, 0))
+          }
+        }
+
+        this.progress = {
+          gamesDone: index + 1,
+          gamesTotal: raws.length,
+          currentLabel: raw.url || raw.uuid || null,
+        }
+      }
+
+      if (!stockfishFailed) {
+        worker.terminate()
+      }
+
+      this.analysedGames = results
+      this.status = 'ready'
     },
     cancel(): void {
       this.cancelled = true

@@ -15,6 +15,7 @@ const {
   status: analysisStatus,
   error: analysisError,
   progress: analysisProgress,
+  stockfishFailed,
 } = storeToRefs(analysisStore);
 
 const currentYear = new Date().getFullYear();
@@ -177,6 +178,9 @@ const handleCancel = () => {
                 Cancel
               </button>
             </div>
+            <p v-if="stockfishFailed" class="stockfish-warning">
+              Continuing PGN pattern analysis without Stockfish, press Cancel to cancel.
+            </p>
           </form>
 
           <!-- Progress -->
@@ -549,6 +553,16 @@ const handleCancel = () => {
   font-size: 0.85rem;
   color: var(--loss);
   margin-top: 8px;
+}
+
+.stockfish-warning {
+  font-size: 0.85rem;
+  color: orange;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 165, 0, 0.06);
+  border: 1px solid rgba(255, 165, 0, 0.2);
+  border-radius: var(--radius-sm);
 }
 
 /* ── Stats area ── */

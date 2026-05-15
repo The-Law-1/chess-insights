@@ -22,6 +22,9 @@ export default class StockfishWorker {
         this.current.reject(error)
         this.current = null
       }
+      for (const pending of this.queue) {
+        pending.reject(error)
+      }
       this.queue = []
     }
   }

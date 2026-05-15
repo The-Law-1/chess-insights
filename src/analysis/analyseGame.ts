@@ -326,38 +326,41 @@ const getCastlingSide = (frames: ReturnType<typeof parseGame>['frames'], color: 
 export const analyseGame = async (
   raw: RawGame,
   username: string,
-  worker: StockfishWorker,
+  worker: StockfishWorker | null,
 ): Promise<AnalysedGame> => {
   const parsed = parseGame(raw.pgn)
   const playerColor = getPlayerColor(raw, username)
   const playerSide = playerColor === 'white' ? 'w' : 'b'
   const opponentSide = playerSide === 'w' ? 'b' : 'w'
-  const keyPositions = extractKeyPositions(parsed.frames, {
-    startPlyIndex: parsed.metadata.firstNonBookMoveIndex,
-  })
 
   const evaluated: EvaluatedPosition[] = []
 
-  for (const position of keyPositions) {
-    const frame = parsed.frames[position.plyIndex]
-    const evalBeforeRaw = await worker.evaluate(frame.fenBefore, ANALYSIS_DEPTH)
-    const evalAfterRaw = await worker.evaluate(frame.fenAfter, ANALYSIS_DEPTH)
-    const bestMove = await worker.getBestMove(frame.fenBefore, ANALYSIS_DEPTH)
-
-    const evalBefore = normalizeEvaluation(evalBeforeRaw, frame.fenBefore, playerColor)
-    const evalAfter = normalizeEvaluation(evalAfterRaw, frame.fenAfter, playerColor)
-
-    evaluated.push({
-      plyIndex: position.plyIndex,
-      fen: position.fen,
-      reasons: position.reasons,
-      evalBefore,
-      evalAfter,
-      swing: evalAfter - evalBefore,
-      bestMove,
-      actualMove: frame.uci,
-      wasBestMove: bestMove !== '' && bestMove === frame.uci,
+  if (worker) {
+    const keyPositions = extractKeyPositions(parsed.frames, {
+      startPlyIndex: parsed.metadata.firstNonBookMoveIndex,
     })
+
+    for (const position of keyPositions) {
+      const frame = parsed.frames[position.plyIndex]
+      const evalBeforeRaw = await worker.evaluate(frame.fenBefore, ANALYSIS_DEPTH)
+      const evalAfterRaw = await worker.evaluate(frame.fenAfter, ANALYSIS_DEPTH)
+      const bestMove = await worker.getBestMove(frame.fenBefore, ANALYSIS_DEPTH)
+
+      const evalBefore = normalizeEvaluation(evalBeforeRaw, frame.fenBefore, playerColor)
+      const evalAfter = normalizeEvaluation(evalAfterRaw, frame.fenAfter, playerColor)
+
+      evaluated.push({
+        plyIndex: position.plyIndex,
+        fen: position.fen,
+        reasons: position.reasons,
+        evalBefore,
+        evalAfter,
+        swing: evalAfter - evalBefore,
+        bestMove,
+        actualMove: frame.uci,
+        wasBestMove: bestMove !== '' && bestMove === frame.uci,
+      })
+    }
   }
 
   const blunders: Blunder[] = evaluated
@@ -428,7 +431,7 @@ export const analyseGame = async (
 export const analyseAllGames = async (
   raws: RawGame[],
   username: string,
-  worker: StockfishWorker,
+  worker: StockfishWorker | null,
   onProgress?: (done: number, total: number, current: RawGame | null) => void,
 ): Promise<AnalysedGame[]> => {
   const results: AnalysedGame[] = []
