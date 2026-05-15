@@ -55,6 +55,11 @@ export const useAnalysisStore = defineStore('analysisStore', {
         await worker.sendCommand('uci')
         await worker.sendCommand('isready')
 
+        // Accumulate in a plain (non-reactive) array to avoid triggering
+        // every stat component's computed properties on each push. A single
+        // assignment at the end gives one render pass instead of O(n²).
+        const results: AnalysedGame[] = []
+
         for (let index = 0; index < raws.length; index += 1) {
           if (this.cancelled) break
 
@@ -66,7 +71,7 @@ export const useAnalysisStore = defineStore('analysisStore', {
           }
 
           const analysed = await analyseGame(raw, username, worker)
-          this.analysedGames.push(analysed)
+          results.push(analysed)
 
           this.progress = {
             gamesDone: index + 1,
@@ -75,6 +80,7 @@ export const useAnalysisStore = defineStore('analysisStore', {
           }
         }
 
+        this.analysedGames = results
         this.status = 'ready'
       } catch (error) {
         this.status = 'error'

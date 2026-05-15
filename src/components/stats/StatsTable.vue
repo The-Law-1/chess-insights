@@ -111,7 +111,7 @@ function sortIndicator(key: 'count' | 'winrate'): string {
 
 .table-description {
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 1rem;
     margin-bottom: 16px;
     line-height: 1.5;
 }
@@ -131,11 +131,11 @@ function sortIndicator(key: 'count' | 'winrate'): string {
 .st-th {
     text-align: left;
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 1rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--text-muted);
+    color: var(--text-primary);
     padding: 10px 16px;
     background: var(--bg-surface);
     border-bottom: 1px solid var(--border-subtle);

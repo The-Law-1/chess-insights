@@ -212,6 +212,17 @@ const handleCancel = () => {
             {{ analysedGames.length }} games analysed
           </p>
         </div>
+        
+        <div class="large-set-warning-container" v-if="maxGames > 350">
+          <div class="warning-text">
+            Large game sets may take a while to load.
+          </div>
+          <!-- only display this warning on mobile -->
+          <div class="warning-text mobile-warning">
+            Analysis of large game sets may be slow on mobile devices. Try on desktop for better performance.
+          </div>
+        </div>
+
       </div>
 
       <!-- Stats content -->
@@ -233,6 +244,32 @@ const handleCancel = () => {
 </template>
 
 <style scoped>
+
+.large-set-warning-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.mobile-warning {
+  display: none;
+}
+
+@media (max-width: 480px) {
+  .mobile-warning {
+    display: block;
+  }
+}
+
+
+.warning-text {
+  width: 100%;
+  text-align: center;
+  color: orange;
+  font-weight: 500;
+}
+
 /* ── Layout ── */
 .dashboard {
   display: flex;
