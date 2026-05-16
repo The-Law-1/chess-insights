@@ -7,7 +7,7 @@ import { RouterView } from 'vue-router';
   <RouterView/>
   <nav class="top-links">
     <a
-      href="https://github.com/The-Law-1"
+      href="https://github.com/The-Law-1/chess-insights"
       target="_blank"
       rel="noopener noreferrer"
       class="top-link"
