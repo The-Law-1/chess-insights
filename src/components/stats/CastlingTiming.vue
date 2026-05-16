@@ -176,8 +176,8 @@ onUnmounted(() => destroyChart());
 }
 
 .description {
-    color: var(--text-secondary);
-    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-size: 1rem;
     margin: 0 0 1rem 0;
 }
 

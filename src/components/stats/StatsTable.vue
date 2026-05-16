@@ -110,7 +110,7 @@ function sortIndicator(key: 'count' | 'winrate'): string {
 }
 
 .table-description {
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-size: 1rem;
     margin-bottom: 16px;
     line-height: 1.5;

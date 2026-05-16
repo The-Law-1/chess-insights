@@ -207,8 +207,8 @@ function getTooltip(name: string, sq: SquareData): string | undefined {
 }
 
 .bh-desc {
-    color: var(--text-secondary);
-    font-size: 0.825rem;
+    color: var(--text-primary);
+    font-size: 1rem;
     line-height: 1.5;
 }
 
