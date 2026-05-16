@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import EngineDebug from '../components/EngineDebug.vue';
-
+import EngineDebug from "../components/EngineDebug.vue";
 </script>
 
 <template>
-    <EngineDebug/>
+	<EngineDebug />
 </template>

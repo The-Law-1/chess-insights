@@ -1,126 +1,142 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Page not found · chess-analysis-4</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <style>
-      :root {
-        --text: #6b6375;
-        --text-h: #08060d;
-        --bg: #fff;
-        --border: #e5e4e7;
-        --accent: #aa3bff;
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1" />
+		<title>Page not found · chess-analysis-4</title>
+		<link
+			rel="icon"
+			type="image/svg+xml"
+			href="/favicon.svg" />
+		<style>
+			:root {
+				--text: #6b6375;
+				--text-h: #08060d;
+				--bg: #fff;
+				--border: #e5e4e7;
+				--accent: #aa3bff;
 
-        --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-        --mono: ui-monospace, Consolas, monospace;
+				--sans: system-ui, "Segoe UI", Roboto, sans-serif;
+				--mono: ui-monospace, Consolas, monospace;
 
-        color-scheme: light dark;
-        font-family: var(--sans);
-      }
+				color-scheme: light dark;
+				font-family: var(--sans);
+			}
 
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --text: #9ca3af;
-          --text-h: #f3f4f6;
-          --bg: #16171d;
-          --border: #2e303a;
-          --accent: #c084fc;
-        }
-      }
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--text: #9ca3af;
+					--text-h: #f3f4f6;
+					--bg: #16171d;
+					--border: #2e303a;
+					--accent: #c084fc;
+				}
+			}
 
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-      }
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+			}
 
-      html, body {
-        margin: 0;
-        min-height: 100%;
-      }
+			html,
+			body {
+				margin: 0;
+				min-height: 100%;
+			}
 
-      body {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        text-align: center;
-        background: var(--bg);
-        color: var(--text);
-        padding: 2rem;
-        font-size: 18px;
-        line-height: 145%;
-      }
+			body {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 12px;
+				text-align: center;
+				background: var(--bg);
+				color: var(--text);
+				padding: 2rem;
+				font-size: 18px;
+				line-height: 145%;
+			}
 
-      h1 {
-        font-family: var(--sans);
-        font-weight: 500;
-        font-size: 56px;
-        letter-spacing: -1.68px;
-        color: var(--text-h);
-        margin: 0 0 8px;
-      }
+			h1 {
+				font-family: var(--sans);
+				font-weight: 500;
+				font-size: 56px;
+				letter-spacing: -1.68px;
+				color: var(--text-h);
+				margin: 0 0 8px;
+			}
 
-      p {
-        margin: 0;
-        opacity: 0.8;
-      }
+			p {
+				margin: 0;
+				opacity: 0.8;
+			}
 
-      .code {
-        font-family: var(--mono);
-        font-size: 15px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        background: #f4f3ec;
-        color: var(--text-h);
-      }
+			.code {
+				font-family: var(--mono);
+				font-size: 15px;
+				padding: 4px 8px;
+				border-radius: 4px;
+				background: #f4f3ec;
+				color: var(--text-h);
+			}
 
-      @media (prefers-color-scheme: dark) {
-        .code {
-          background: #1f2028;
-        }
-      }
+			@media (prefers-color-scheme: dark) {
+				.code {
+					background: #1f2028;
+				}
+			}
 
-      @media (max-width: 1024px) {
-        h1 {
-          font-size: 36px;
-        }
-        body {
-          font-size: 16px;
-        }
-      }
-    </style>
-    <script>
-      // Redirect unknown paths back to the SPA entry point (for static hosting).
-      ;(function () {
-        var pathSegmentsToKeep = 0
-        var l = window.location
-        var normalizedPath = l.pathname
-          .split('/')
-          .slice(1 + pathSegmentsToKeep)
-          .join('/')
+			@media (max-width: 1024px) {
+				h1 {
+					font-size: 36px;
+				}
+				body {
+					font-size: 16px;
+				}
+			}
+		</style>
+		<script>
+			// Redirect unknown paths back to the SPA entry point (for static hosting).
+			(function () {
+				var pathSegmentsToKeep = 0;
+				var l = window.location;
+				var normalizedPath = l.pathname
+					.split("/")
+					.slice(1 + pathSegmentsToKeep)
+					.join("/");
 
-        l.replace(
-          l.protocol +
-            '//' +
-            l.hostname +
-            (l.port ? ':' + l.port : '') +
-            l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') +
-            '/?/' +
-            normalizedPath.replace(/&/g, '~and~') +
-            (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-            l.hash
-        )
-      })()
-    </script>
-  </head>
-  <body>
-    <h1>404</h1>
-    <p>Page not found</p>
-    <p>If you're not redirected, <a href="/" style="color: var(--accent)">go home</a>.</p>
-  </body>
+				l.replace(
+					l.protocol +
+						"//" +
+						l.hostname +
+						(l.port ? ":" + l.port : "") +
+						l.pathname
+							.split("/")
+							.slice(0, 1 + pathSegmentsToKeep)
+							.join("/") +
+						"/?/" +
+						normalizedPath.replace(/&/g, "~and~") +
+						(l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+						l.hash
+				);
+			})();
+		</script>
+	</head>
+	<body>
+		<h1>404</h1>
+		<p>Page not found</p>
+		<p>
+			If you're not redirected,
+			<a
+				href="/"
+				style="color: var(--accent)"
+				>go home</a
+			>.
+		</p>
+	</body>
 </html>

@@ -31,12 +31,12 @@ Requires Node ≥18. The dev server sends COOP/COEP headers needed for Stockfish
 
 ### Stack
 
-| Layer | Tech |
-|-------|------|
-| Framework | Vue 3 + TypeScript |
-| Build | Vite 8 |
-| State | Pinia |
-| Router | Vue Router 5 |
-| Chess logic | chess.js |
-| Engine | Stockfish WASM (Web Worker) |
-| Charts | Chart.js |
+| Layer       | Tech                        |
+| ----------- | --------------------------- |
+| Framework   | Vue 3 + TypeScript          |
+| Build       | Vite 8                      |
+| State       | Pinia                       |
+| Router      | Vue Router 5                |
+| Chess logic | chess.js                    |
+| Engine      | Stockfish WASM (Web Worker) |
+| Charts      | Chart.js                    |
